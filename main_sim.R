@@ -11,6 +11,6 @@ setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
 
 source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep))
 
-psc_SPinitial <- getDBvalues(param_ = 'INITIALSTOCK', paramkind_='INP')
+# psc_SPinitial <- getDBvalues(param_ = 'INITIALSTOCK', paramkind_='INP')
 
 psc_SPvol <- getDBvalues(param_ = 'STOCKPILE_VOL', paramkind_ = 'RES')
