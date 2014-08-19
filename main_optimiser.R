@@ -7,7 +7,7 @@ rm(list = ls()) #clear global environment
 
 maxIterations <- 23
 N <- 150
-fp_set <- 1
+fp_set <- 0
 options.ps <- c(1:14,99)[15] #which power station to optimise. 99 (#15) = all
 options.dv <- c(1,3)[1]
 options.eval <- c(1,5)[1]
@@ -25,12 +25,12 @@ tic <- Sys.time() #begin stopwatch
 ## !!Adjust these paths to the folder where EFS is running!!
 ## First Start DIAS then Run this in RStudio
 if (fp_set == 0){
-  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\Copy\\Postgraduate\\Thesis\\Algorithms\\R code - Marc")
-  THEPATH  <-  "C:/Users/MarcHatton\\Desktop\\EFS APP"
-  THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs"
+  Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
+  THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
+  THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
 }else if(fp_set == 1){
-  Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
