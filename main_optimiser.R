@@ -1,5 +1,4 @@
 ###### CLEAR PREVIOUS RUN 
-#2014 06 25
 sink()
 sink()
 sink()
@@ -9,7 +8,15 @@ rm(list = ls()) #clear global environment
 maxIterations <- 23
 N <- 150
 fp_set <- 1
-print(paste("estimated completion time = ", round(maxIterations*N*15*8/60/60,2), " hours", sep="")) 
+options.ps <- c(1:14,99)[15] #which power station to optimise. 99 (#15) = all
+options.dv <- c(1,3)[1]
+options.eval <- c(1,5)[1]
+
+if (options.dv == 3){
+  print(paste("estimated completion time = ", round(maxIterations*N*15*8/60/60,2), " hours", sep="")) 
+}else if (options.dv == 1){
+  print(paste("estimated completion time = ", round(maxIterations*N*15/60/60,2), " hours", sep="")) 
+}
 
 ###### START STOPWATCH
 tic <- Sys.time() #begin stopwatch
@@ -23,7 +30,7 @@ if (fp_set == 0){
   THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs"
   print(fp_set)
 }else if(fp_set == 1){
-  Rcode_path  <- file.path("H:\\R code - Marc") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
@@ -55,6 +62,14 @@ t <- 1 # time-step counter
 
 ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
 source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep))
+
+###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a seq of 1 to psc_tot
+if (options.ps == 99){
+  options.ps <- seq(from=1, to=psc_tot, by=1)
+  print("all powerstations will be optimised")
+} else {
+  print(paste("powerstation ", options.ps," (", colnames(psc_template)[options.ps], ") ",  "will be optimised", sep=""))
+}
 
 ###### LOAD OBJECTIVE FUNCTION
 source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep))
@@ -109,7 +124,6 @@ epsNum <- 5 #Maximum error (a.k.a required accuracy)
 epsErr  <- 10 #try make it as close to zero as possible.
 # maxIterations <- 5
 alpha <- 0.75 #convergence rate, typical varies between 0.6 & 0.9
-
 
 ###### INITIALISE DECISION VARIABLES & SET CONSTRAINTS
 ### DV: Stockpiles: Initial, UpperWarning & LowerWarning.
@@ -196,7 +210,8 @@ write.row(c("0", rep("NA",times=7),
 # {  
 
 while (t <= maxIterations){
-  changeSimSet(seed=sim_seed[t]) #change the simulation seed for current time step (t)
+  sim_seed.current <- sim_seed[1]
+  changeSimSet(seed=sim_seed.current) #change the simulation seed for current time step (t)
   mus_prev <- mus
   sigmas_prev <- sigmas
   
@@ -213,9 +228,13 @@ while (t <= maxIterations){
     dv_SPupper   <- x[kkk,1:psc_tot + 2*psc_tot]
     source(paste(Rcode_path,"main_sim.R",sep=sep_)) #call the simulator
     
-    #next 2 lines must go together!! and in that order!!
-    mode <- "x"
-    source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_)) #calculate emergency & cancellation deliveries
+    #only calculate emer/canc if options.dv == 3
+    if (options.dv == 3){
+    
+      #next 2 lines must go together!! and in that order!!
+      mode <- "x"
+      source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_)) #calculate emergency & cancellation deliveries
+    }
     
     Z_x[kkk,]  <- c(sum(obj_func()),x[kkk,])
     #@ write.csv(c("emer",unlist(delv_emer),"canc",unlist(delv_canc)), file = paste("C:\\Users\\17878551\\Desktop\\EFS APP\\CSPS_optimiser_output\\EmerOrCanc_t", t,"_k", kkk, ".csv",sep='')) 
@@ -244,14 +263,18 @@ while (t <= maxIterations){
   dv_SPupper   <- mus[1:psc_tot + 2*psc_tot]
   source(paste(Rcode_path,"main_sim.R",sep=sep_))
 
-  #next 2 lines must go together!! and in that order!!
-  mode <- "mu"
-  source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_))
-  
+  #only calculate emer/canc if options.dv == 3
+  if (options.dv == 3){
+    
+    #next 2 lines must go together!! and in that order!!
+    mode <- "mu"
+    source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_))
+  }
+    
   Z_mus <- sum(obj_func())
   
   #export results of time step (t) to .csv
-  write.row(c(t,sim_seed[t],Z_mus,obj_func(),z_quantile[t],mus,sigmas,unlist(delv_emer),unlist(delv_canc),unlist(dv_delv)))
+  write.row(c(t, sim_seed.current, Z_mus,obj_func(), z_quantile[t], mus, sigmas, unlist(delv_emer), unlist(delv_canc), unlist(dv_delv)))
   #@ used for inspection of Z_x_sorted. must remove for final version
   #write.csv(Z_x_sorted, file = paste(THEPATH,"\\CSPS_optimiser_output\\Z_x_sorted", t, ".csv",sep=''))  
   

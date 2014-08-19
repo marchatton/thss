@@ -60,8 +60,9 @@ write.row <- function(x, file = writepath, append = TRUE, quote = TRUE, sep=",",
 ###### simulation settings
 sim_index <- c("MIN", "PERC0", "MEAN", "PERC1", "MAX") #(min, 5th perc, mean, 95th perc, max)
 CM_sim_settings <- dbGetQuery(con, "select * from CM_SIMULATION")
-sim_iter=10
-sim_seed=runif(maxIterations,-2147483648,2147483647) 
+sim_iter <- 10
+sim_seed <- runif(maxIterations,-2147483648,2147483647) 
+
 changeSimSet <- function(seed=sim_seed[1],iter=sim_iter){
   dbSendUpdate(con, str_c("UPDATE CM_SIMULATION SET ",
     "ITERATIONS = "    , iter,  ", " ,
