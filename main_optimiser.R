@@ -5,8 +5,8 @@ sink()
 cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
-maxIterations <- 23
-N <- 150
+maxIterations <- 40
+N <- 80
 fp_set <- 0
 options.ps <- c(1:14,99)[15] #which power station to optimise. 99 (#15) = all
 options.dv <- c(1,3)[1]
