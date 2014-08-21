@@ -5,10 +5,10 @@ sink()
 cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
-maxIterations <- 40
-N <- 80
-fp_set <- 0
-options.ps <- c(1:14,99)[15] #which power station to optimise. 99 (#15) = all
+maxIterations <- 80
+N <- 100
+fp_set <- 1
+options.ps <- c(1:14,99)[1] #which power station to optimise. 99 (#15) = all
 options.dv <- c(1,3)[1]
 options.eval <- c(1,5)[1]
 
@@ -30,7 +30,7 @@ if (fp_set == 0){
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
 }else if(fp_set == 1){
-  Rcode_path  <- file.path("H:\\R code - Marc") #where to source Rcode
+  Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
