@@ -6,7 +6,7 @@ cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
 maxIterations <- 80
-N <- 100
+N <- 50
 fp_set <- 1
 options.ps <- c(1:14,99)[1] #which power station to optimise. 99 (#15) = all
 options.dv <- c(1,3)[1]
@@ -50,7 +50,7 @@ if (fp_set == 0){
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
 }else if(fp_set == 5){
-  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\Copy\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") #where to source Rcode
+  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") #where to source Rcode
   THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
   print(fp_set)
@@ -65,6 +65,7 @@ source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep))
 
 ###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a seq of 1 to psc_tot
 if (options.ps == 99){
+  options.ps_write <- 99
   options.ps <- seq(from=1, to=psc_tot, by=1)
   print("all powerstations will be optimised")
 } else {
@@ -173,11 +174,11 @@ SPvar <- 0
 
 #print parameters
 write.row(c("opt_type",func_name), append=FALSE)
-write.row(c('numVar',numVar))
+write.row(c('options.ps',options.ps_write))
+write.row(c('options.dv',options.dv))
+write.row(c('options.eval',options.eval))
 write.row(c('rho',rho))
 write.row(c('N',N))
-write.row(c('epsNum',epsNum))
-write.row(c('epsErr',epsErr))
 write.row(c('maxIterations',maxIterations))
 write.row(c('alpha',alpha))
 write.row('')
