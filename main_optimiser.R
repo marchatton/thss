@@ -65,8 +65,8 @@ source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep))
 
 ###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a seq of 1 to psc_tot
 if (options.ps == 99){
-  options.ps_write <- 99
-  options.ps <- seq(from=1, to=psc_tot, by=1)
+  options.ps_write <- "all"
+  options.ps <- 1:psc_tot
   print("all powerstations will be optimised")
 } else {
   print(paste("powerstation ", options.ps," (", colnames(psc_template)[options.ps], ") ",  "will be optimised", sep=""))

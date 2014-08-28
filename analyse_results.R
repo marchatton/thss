@@ -1,7 +1,6 @@
 require(ggplot2)
 require(reshape2)
 require(lubridate)
-require(RColorBrewer)
 
 ###### CLEAR PREVIOUS RUN 
 #2014 06 25
@@ -236,7 +235,7 @@ Analyse.Results <- function(res.choose=4){
     
     p.mus.chosen <- ggplot(data=results.mus.chosen, aes(x=Iteration, y=Desired, ymin=LWL, ymax=UWL)) + 
       geom_line() +
-      geom_ribbon(alpha=0.5) +
+      geom_ribbon(alpha=0.6) +
       geom_point(fill = "white",    
                  size = 2)  +       
       scale_shape_manual(values=(1:psc_tot -1)) + 
@@ -249,10 +248,14 @@ Analyse.Results <- function(res.choose=4){
   }
   
   ###loop through stockpile ribbon function
-  draw.count <- 0
-  while ((options.ps2=="all") && (draw.count<psc_tot)){
-    draw.count <- draw.count+1
-    Stockpile.Ribbon(draw.count)
+  if ((options.ps2>0) && (options.ps2<=psc_tot)){
+    Stockpile.Ribbon(options.ps2)
+  }else if(options.ps2!="all"){
+    draw.count <- 0
+    while (draw.count<psc_tot){
+      draw.count <- draw.count+1
+      Stockpile.Ribbon(draw.count)
+    }
   }
   
   results.costs <- melt(results.costs, id.vars="Iteration")
