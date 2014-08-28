@@ -1,4 +1,4 @@
-obj_func <- function(SP_day){
+obj_func <- function(){
 z <- c(0,0,0,0)
 
 #### objective function
@@ -36,6 +36,7 @@ z[4] <- sum(psc_cost[, options.ps] *
               delv_canc[, options.ps]) * 
                 pen_canc
 
+return(z)
 }
 
 
