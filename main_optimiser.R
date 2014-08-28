@@ -10,7 +10,7 @@ rm(list = ls()) #clear global environment
 maxIterations <- 80
 N <- 50
 fp_set <- 1 # fp. created due to laziness. makes switching between different computers easy.
-options.ps <- c(1:14,99)[1] #which power station to optimise. 99 = all
+options.ps <- c(1:14,99)[15] #which power station to optimise. 99 = all
 options.dv <- c(1,3)[1]
 options.eval <- c(1,5)[1]
 option.halfwidth <- FALSE
