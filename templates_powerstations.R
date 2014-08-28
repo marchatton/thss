@@ -2,7 +2,7 @@
 #TEMPLATES ARE IN THE FORM OF DATA.FRAME's
 #USES POWERSTATION CAPACITY TO CREATE THE TEMPLATES 
 
-sink(opt_log, append=T) #Suppress output to console. Send all output to a log file.
+sink("NULL") #Suppress output to console. Send all output to a log file.
 
 ###PSC - Power Station Coal
 efsGetTypeDef(con, 'POWERSTATION') # List all typedefs of Entity POWERSTATION 
