@@ -55,7 +55,7 @@ func_name <- "CEM"
 t <- 1 # time-step counter
 
 ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
-source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep))
+source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
 
 
 Analyse.Results <- function(res.choose=4){

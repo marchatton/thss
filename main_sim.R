@@ -12,6 +12,6 @@ if (options.dv == 3){
   setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
 }
 
-source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep))
+source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep), local=TRUE)
 
 psc_SPvol <- getDBvalues(param_ = 'STOCKPILE_VOL', paramkind_ = 'RES')

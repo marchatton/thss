@@ -79,7 +79,7 @@ for (iii in 1:(interval_num-1)){
   }
   dv_delv[iii+1,] <- dv_delv[iii+1,] + delv_emer.future[iii+1,] - delv_canc.future[iii+1,]
   setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
-  source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep))
+  source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep), local=TRUE)
   psc_SPvol <- getDBvalues(param_ = 'STOCKPILE_VOL', paramkind_ = 'RES')
   
   

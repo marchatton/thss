@@ -1,4 +1,4 @@
-source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep))
+source(paste(Rcode_path,"RunCSPS.R",sep=.Platform$file.sep), local=TRUE)
 
 psc_delvin <- getDBvalues(param_ = 'COAL_DELIVERY_IN', paramkind_='INP')
 psc_delvout <- getDBvalues(param_ = 'COAL_DELIVERY_OUT', paramkind_ = 'RES')

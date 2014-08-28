@@ -7,16 +7,24 @@ cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
 # ###### INITIAL REQUIRED SETTINGS. USED FOR THE NEXT FEW SETTINGS, ETC.  
-# maxIterations <- 2
-# N <- 5
+# maxIterations <- 50
+# N <- 50
 # fp_set <- 1 # fp. created due to laziness. makes switching between different computers easy.
-# options.ps <- c(1:14,99)[15] #which power station to optimise. 99 = all
-# options.dv <- c(1,3)[1]
-# options.eval <- c(1,5)[1]
+# options.ps <- 99 # 1,2,3,4,5,6,7,8,9,10,11,12,13,14, or 99. which power station to optimise? 99 = all
+# options.dv <- 3 #1 or 3. how many types of decision variables? des? or des, LWL, UWL?
+# options.eval <- 1 # 1 or 5
 # option.halfwidth <- FALSE
 
 ###### optimiser function
 optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
+  
+  print(paste("fp_set", fp_set))
+  print(paste("maxIterations", maxIterations))
+  print(paste("N", N))
+  print(paste("options.ps", options.ps))
+  print(paste("options.dv", options.dv))
+  print(paste("options.eval", options.eval))
+  print(paste("option.halfwidth", option.halfwidth))
   
   # calculate estimated completion time
   if (options.dv == 3){
@@ -35,32 +43,40 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
     Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
     THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
+    print(paste("computer",fp_set))
   }else if(fp_set == 1){
     Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") #where to source Rcode
     THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
+    print(paste("computer",fp_set))
   }else if(fp_set == 2){
     Rcode_path  <- file.path("H:\\R code - Marc2") #where to source Rcode
     THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
+    print(paste("computer",fp_set))
   }else if(fp_set == 3){
     Rcode_path  <- file.path("H:\\R code - Marc3") #where to source Rcode
     THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
   }else if(fp_set == 4){
     Rcode_path  <- file.path("H:\\R code - Marc4") #where to source Rcode
     THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
+    print(paste("computer",fp_set))
   }else if(fp_set == 5){
     Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") #where to source Rcode
     THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
     THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(fp_set)
+    print(paste("computer",fp_set))
+  }
+  
+  print(paste("Using computer",fp_set))
+  print(Rcode_path)
+  print(THEPATH)
+  print(THEDBPATH)
+  
+  if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
+    stop("For the optimiser to work, filepaths must be set!") 
   }
   
   ###### NECESSARY INITIAL VALUES USED IN "main_settings.R"
@@ -68,7 +84,9 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   t <- 1 # time-step counter
   
   ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
-  source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep))
+  source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
+  
+  break 
   
   ###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a sequence of 1-to-psc_tot
   if (options.ps == 99){
@@ -80,7 +98,7 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   }
   
   ###### LOAD OBJECTIVE FUNCTION
-  source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep))
+  source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
   
   ###### CHECK THAT ESTIMATED VALUES EXIST
   # Stop the optimiser if the estimator has not been run initially.
@@ -238,14 +256,14 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
       dv_SPinitial <- x[kkk,1:psc_tot]
       dv_SPlower   <- x[kkk,1:psc_tot + psc_tot]
       dv_SPupper   <- x[kkk,1:psc_tot + 2*psc_tot]
-      source(paste(Rcode_path,"main_sim.R",sep=sep_)) #call the simulator
+      source(paste(Rcode_path,"main_sim.R",sep=sep_), local=TRUE) #call the simulator
       
       # only calculate emer/canc if options.dv == 3. i.e. if using LWL and UWL as decision variables.
       if (options.dv == 3){
         
         # next 2 lines must go together!! and in that order!!
         mode <- "x"
-        source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_)) #calculate emergency & cancellation deliveries
+        source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_), local=TRUE) #calculate emergency & cancellation deliveries
       }
       
       Z_x[kkk,]  <- c(sum(obj_func()),x[kkk,])
@@ -274,14 +292,14 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
     dv_SPinitial <- mus[1:psc_tot]
     dv_SPlower   <- mus[1:psc_tot + psc_tot]
     dv_SPupper   <- mus[1:psc_tot + 2*psc_tot]
-    source(paste(Rcode_path,"main_sim.R",sep=sep_))
+    source(paste(Rcode_path,"main_sim.R",sep=sep_), local=TRUE)
     
     # only calculate emer/canc if options.dv == 3
     if (options.dv == 3){
       
       # next 2 lines must go together!! and in that order!!
       mode <- "mu"
-      source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_))
+      source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_), local=TRUE)
     }
     
     Z_mus <- sum(obj_func())
@@ -315,3 +333,7 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   winDialog("ok", paste("OPTIMISER completed in ",round(print(toc-tic),1),units(toc-tic), sep=""))
   
 }
+
+optimser.csps()
+
+optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)

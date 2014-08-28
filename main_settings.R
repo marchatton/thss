@@ -27,7 +27,7 @@ if (interval=='month'){
 dates <- seq(startdate,enddate,interval)
 
 ###### Source EFS API library - used for communicating between R and the database
-source(paste(Rcode_path,"efslib.R",sep=sep_))
+source(paste(Rcode_path,"efslib.R",sep=sep_), local=TRUE)
 
 ###### connect to the EFS database
 setwd(THEDBPATH)
@@ -65,18 +65,17 @@ sim_seed <- runif(maxIterations,-2147483648,2147483647)
 
 changeSimSet <- function(seed=CM_sim_settings()$SEED,iter=sim_iter){
   dbSendUpdate(con, str_c("UPDATE CM_SIMULATION SET ",
-    "ITERATIONS = "    , iter,  ", " ,
-    "SEED = "          , seed  
-    )) 
+                          "ITERATIONS = "    , iter,  ", " ,
+                          "SEED = "          , seed  
+  )) 
 }
-changeSimSet(iter=20)
+changeSimSet()
 
 ###### estimator names
 est_names <- c("est_delvin", "est_delvout", "est_burnin", "est_burnout")
 
 ###### generate power station templates. makes it easier to read from and write to the database.
-source(paste(Rcode_path,"templates_powerstations.R",sep=sep_))
+source(paste(Rcode_path,"templates_powerstations.R",sep=sep_), local=TRUE)
 
 ###### load get and set db values. used for creating dataframes for reading from and writing to databases.
-source(paste(Rcode_path,"LoadGetAndSetDBvalues.R",sep=sep_))
-
+source(paste(Rcode_path,"LoadGetAndSetDBvalues.R",sep=sep_), local=TRUE)
