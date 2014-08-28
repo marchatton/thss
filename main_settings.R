@@ -59,24 +59,17 @@ write.row <- function(x, file = writepath, append = TRUE, quote = TRUE, sep=",",
 
 ###### simulation settings
 sim_index <- c("MIN", "PERC0", "MEAN", "PERC1", "MAX") #(min, 5th perc, mean, 95th perc, max)
-CM_sim_settings <- dbGetQuery(con, "select * from CM_SIMULATION")
-sim_iter <- 10
+CM_sim_settings <- function(){dbGetQuery(con, "select * from CM_SIMULATION")}
+sim_iter <- 1000
 sim_seed <- runif(maxIterations,-2147483648,2147483647) 
 
-changeSimSet <- function(seed=sim_seed[1],iter=sim_iter){
+changeSimSet <- function(seed=CM_sim_settings()$SEED,iter=sim_iter){
   dbSendUpdate(con, str_c("UPDATE CM_SIMULATION SET ",
     "ITERATIONS = "    , iter,  ", " ,
     "SEED = "          , seed  
     )) 
 }
-changeSimSet()
-
-###### where to log terminal outputs during runtime
-opt_log <- paste(optPath, "optimiser_log.txt", sep=sep_)
-sink(opt_log) #clear log file
-print("#####################clean###################")
-sink()
-#opt_log <- "NUL" #use if don't want to save any terminal runtime outputs
+changeSimSet(iter=20)
 
 ###### estimator names
 est_names <- c("est_delvin", "est_delvout", "est_burnin", "est_burnout")

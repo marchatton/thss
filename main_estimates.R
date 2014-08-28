@@ -74,33 +74,7 @@ setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
 sim_iter_est <- 1000
 changeSimSet(iter = sim_iter_est)
 
-# ##### WRITE PARAMETERS TO ESTIMATOR FILES
-# for (iii in 1:length(est_names)){
-#   temppath <- paste(optEstPath,est_names[iii],sep=sep_)
-#   write.row(func_name, file=temppath, append=FALSE)
-#   write.row(c('iterations',sim_iter_est), file=temppath)
-#   write.row(c("seed","t",1:numEstVar),file=temppath)
-# }
-# while (t <= maxIterations)
-# {  
-#   changeSimSet(seed=sim_seed[t])
-#   source(paste(Rcode_path,"main_sim_estimates.R", sep=sep_))
-#   
-#   d_in <- as.vector(as.matrix(psc_delvin))
-#   write.row(c(sim_seed[t],t,d_in), file=paste(optEstPath, est_names[1], sep=sep_))
-#   
-#   d_out <- as.vector(as.matrix(psc_delvout))
-#   write.row(c(sim_seed[t],t,d_out), file=paste(optEstPath, est_names[2], sep=sep_))
-#   
-#   b_in <- as.vector(as.matrix(psc_burnin))
-#   write.row(c(sim_seed[t],t,b_in), file=paste(optEstPath, est_names[3], sep=sep_))
-#   
-#   b_out <- as.vector(as.matrix(psc_burnout))
-#   write.row(c(sim_seed[t],t,b_out), file=paste(optEstPath, est_names[4],sep=sep_))
-#   
-#   t <- t+1
-# }
-
+###### INITIALISE ESTIMATES
 est_delvin  <- matrix(NA,maxIterations,prod(dim(psc_template)))
 est_delvout <- matrix(NA,maxIterations,prod(dim(psc_template)))
 est_burnin  <- matrix(NA,maxIterations,prod(dim(psc_template)))
@@ -125,7 +99,8 @@ write.csv(est_delvout, file = paste(optEstPath, "/", est_names[4], ".csv", sep="
 write.csv(est_burnin, file = paste(optEstPath, "/", est_names[1], ".csv", sep=""))
 write.csv(est_burnout, file = paste(optEstPath, "/", est_names[2], ".csv", sep=""))
 
-#draw boxplots for estimates
+###### ANALYSE RESULTS
+# draw boxplots for estimates
 source(paste(Rcode_path,"boxplots_estimates.R", sep=sep_))
 
 toc <- Sys.time() #end stopwatch
