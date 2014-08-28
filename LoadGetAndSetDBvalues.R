@@ -9,7 +9,7 @@ getDBvalues <- function(param_=NA, paramkind_=NA, type_='COAL_PS', ent_='POWERST
     stop("Please enter a value for param_") 
   }
 
-  sink(opt_log, append=T) #suppress all output to speed up processing time
+  sink("NULL") #suppress all output to speed up processing time
   
   efsGetTypeDef(con, ent_) #list all typedefs of entity
   gentypedef <- efsGetTypeDef(con, ent_, type_) # Choose specific typedef by entity and key
@@ -54,7 +54,6 @@ getDBvalues <- function(param_=NA, paramkind_=NA, type_='COAL_PS', ent_='POWERST
     }
   }
   
-  
   sink() #undo suppression of output
   
   print(paste("got cm_entity=", ent_,
@@ -80,7 +79,7 @@ setDBvalues <- function(values_=NA, param_=NA, type_='COAL_PS', ent_='POWERSTATI
   }
   
   
-  sink(opt_log, append=T) #suppress all output to speed up processing time
+  sink("NULL") #suppress all output to speed up processing time
   
   efsGetTypeDef(con, ent_) #list all typedefs of entity
   gentypedef <- efsGetTypeDef(con, ent_, type_) # Choose specific typedef by entity and key
