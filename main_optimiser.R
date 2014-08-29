@@ -1,14 +1,6 @@
-optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
+optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
   
   ############################ INITIALISATION ################################
-  
-  print(paste("fp_set", fp_set))
-  print(paste("maxIterations", maxIterations))
-  print(paste("N", N))
-  print(paste("options.ps", options.ps))
-  print(paste("options.dv", options.dv))
-  print(paste("options.eval", options.eval))
-  print(paste("option.halfwidth", option.halfwidth))
   
   # calculate estimated completion time
   if (options.dv == 3){
@@ -19,10 +11,6 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   
   # begin stopwatch
   tic <- Sys.time() 
-  
-  if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
-    stop("For the optimiser to work, filepaths must be set!") 
-  }
   
   ###### NECESSARY INITIAL VALUES USED IN "main_settings.R"
   func_name <- "CEM"
@@ -132,7 +120,7 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   sigmas_prev <- rep(NA,numVar)
   x <- matrix(0,N,numVar) # population matrix
   Z_x <- matrix(0,N,1+numVar) #objective function including: x, obj func value, emer & canc deliveries
-  z_archive <- rep(NA,maxIterations)
+  sigma_quantile <- matrix(NA,numVar,maxIterations)
   z_quantile <- rep(NA,maxIterations)
   
   delv_emer <- psc_template
