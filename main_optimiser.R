@@ -1,11 +1,3 @@
-###### CLEAR PREVIOUS RUN 
-sink()
-sink()
-sink()
-cat("\014") #clear console
-rm(list = ls()) #clear global environment
-
-###### optimiser function
 optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
   
   ############################ INITIALISATION ################################
@@ -28,45 +20,6 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   # begin stopwatch
   tic <- Sys.time() 
   
-  ###### FILE PATHS USED IN OPTIMISER
-  ## !!Adjust these paths to the folder where EFS is running!!
-  ## !!First Start DIAS then Run this in RStudio!!
-  if (fp_set == 0){
-    Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(paste("computer",fp_set))
-  }else if(fp_set == 1){
-    Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(paste("computer",fp_set))
-  }else if(fp_set == 2){
-    Rcode_path  <- file.path("H:\\R code - Marc2") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(paste("computer",fp_set))
-  }else if(fp_set == 3){
-    Rcode_path  <- file.path("H:\\R code - Marc3") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  }else if(fp_set == 4){
-    Rcode_path  <- file.path("H:\\R code - Marc4") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(paste("computer",fp_set))
-  }else if(fp_set == 5){
-    Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") #where to source Rcode
-    THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
-    THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-    print(paste("computer",fp_set))
-  }
-  
-  print(paste("Using computer",fp_set))
-  print(Rcode_path)
-  print(THEPATH)
-  print(THEDBPATH)
-  
   if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
     stop("For the optimiser to work, filepaths must be set!") 
   }
@@ -78,7 +31,7 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
   source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
   
-  ###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a sequence of 1-to-psc_tot
+  ###### IF OPTIONS.PS = 99 (all powerstations), then we let PS = a sequence of 1-to-psc_tot
   if (options.ps == 99){
     options.ps_write <- "all"
     options.ps <- 1:psc_tot
@@ -325,7 +278,3 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
 }
 
 
-####################################################************* RUN OPTIMISER
-optimser.csps()
-
-# optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
