@@ -1,4 +1,3 @@
-############################ INITIALISATION ################################
 ###### CLEAR PREVIOUS RUN 
 sink()
 sink()
@@ -6,17 +5,10 @@ sink()
 cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
-# ###### INITIAL REQUIRED SETTINGS. USED FOR THE NEXT FEW SETTINGS, ETC.  
-# maxIterations <- 50
-# N <- 50
-# fp_set <- 1 # fp. created due to laziness. makes switching between different computers easy.
-# options.ps <- 99 # 1,2,3,4,5,6,7,8,9,10,11,12,13,14, or 99. which power station to optimise? 99 = all
-# options.dv <- 3 #1 or 3. how many types of decision variables? des? or des, LWL, UWL?
-# options.eval <- 1 # 1 or 5
-# option.halfwidth <- FALSE
-
 ###### optimiser function
 optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
+  
+  ############################ INITIALISATION ################################
   
   print(paste("fp_set", fp_set))
   print(paste("maxIterations", maxIterations))
@@ -85,8 +77,6 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   
   ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
   source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
-  
-  break 
   
   ###### IF OPTIONS.PS = 99 (al powerstations), then we let PS = a sequence of 1-to-psc_tot
   if (options.ps == 99){
@@ -331,9 +321,11 @@ optimser.csps <- function(fp_set=1, maxIterations=50, N=50, options.ps=99, optio
   
   # create a pop up dialog
   winDialog("ok", paste("OPTIMISER completed in ",round(print(toc-tic),1),units(toc-tic), sep=""))
-  
+    
 }
 
+
+####################################################************* RUN OPTIMISER
 optimser.csps()
 
-optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
+# optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
