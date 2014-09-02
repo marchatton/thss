@@ -46,10 +46,9 @@ if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
   stop("For the optimiser (and estimator) to work, filepaths must be set!") 
 }
 
+###### LOAD ESTIMATOR & OPTIMISER
 source(paste(Rcode_path,"main_estimates.R", sep=.Platform$file.sep), local=TRUE)
-
 source(paste(Rcode_path,"main_optimiser.R", sep=.Platform$file.sep), local=TRUE)
-
 
 
 #************* RUN ESTIMATOR ******************
@@ -57,6 +56,5 @@ source(paste(Rcode_path,"main_optimiser.R", sep=.Platform$file.sep), local=TRUE)
 
 
 #************* RUN OPTIMISER ******************
-#optimser.csps()
-
-optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
+# optimser.csps()
+# optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
