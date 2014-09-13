@@ -10,7 +10,7 @@ sink()
 
 maxIterations <- 1
 N <- 1
-fp_set <- 1
+fp_set <- 0
 
 ###### START STOPWATCH
 tic <- Sys.time() #begin stopwatch
@@ -18,37 +18,37 @@ tic <- Sys.time() #begin stopwatch
 ###### FILE PATHS USED IN OPTIMISER
 ## !!Adjust these paths to the folder where EFS is running!!
 ## First Start DIAS then Run this in RStudio
+## !!First Start DIAS then Run this in RStudio!!
 if (fp_set == 0){
-  Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc\\thss") 
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }else if(fp_set == 1){
-  Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") #where to source Rcode
+  Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") 
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }else if(fp_set == 2){
-  Rcode_path  <- file.path("H:\\R code - Marc2") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc2") 
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }else if(fp_set == 3){
-  Rcode_path  <- file.path("H:\\R code - Marc3") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc3") 
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }else if(fp_set == 4){
-  Rcode_path  <- file.path("H:\\R code - Marc4") #where to source Rcode
+  Rcode_path  <- file.path("H:\\R code - Marc4") 
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }else if(fp_set == 5){
-  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") #where to source Rcode
+  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") 
   THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
-  print(fp_set)
 }
+
+print(paste("Using computer",fp_set))
+print(Rcode_path)
+print(THEPATH)
+print(THEDBPATH)
 
 ###### NECESSARY INITIAL VALUES USED IN DEFINING SETTINGS
 func_name <- "CEM"
@@ -58,7 +58,7 @@ t <- 1 # time-step counter
 source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
 
 
-Analyse.Results <- function(res.choose=4){
+Analyse.Results <- function(res.choose=4, confidential=FALSE){
   
   ###### results - analyse
   if (res.choose == 1){
@@ -94,7 +94,12 @@ Analyse.Results <- function(res.choose=4){
   #                   ifelse(options.dv2==3, "LWL, DES & UWL", NA))
   ts <- results[nrow(results), 1]
   
-  
+  if (confidential==FALSE){
+    ps.names <- colnames(psc_template)
+  } else if (confidential==TRUE){
+    ps.names <- paste("Powerstation ", 1:psc_tot, sep="")
+  }
+    
   results.costs <- results[, c(1, 2:7)]
   colnames(results.costs) <- c("Iteration", "Overall.mu", "Holding", 
                                "Shortage", "Emergency", "Cancellation", "Overall.quantile")
@@ -107,20 +112,20 @@ Analyse.Results <- function(res.choose=4){
   results.mus["Desired"] <- melt(results[, c(1:14 +7)], id.vars=)[,2]
   results.mus["LWL"] <- melt(results[, c(1:14 +7+14)])[,2]
   results.mus["UWL"] <- melt(results[, c(1:14 +7+14+14)])[,2]
-  results.mus["Powerstation"] <- rep(colnames(psc_template), 
+  results.mus["Powerstation"] <- rep(ps.names, 
                                      each=ts)
   
   results.sigmas <- data.frame(Iteration=rep(results[,1],psc_tot))
   results.sigmas["Desired"] <- melt(results[, c(1:14 +7+42)])[,2]
   results.sigmas["LWL"] <- melt(results[, c(1:14 +7+14+42)])[,2]
   results.sigmas["UWL"] <- melt(results[, c(1:14 +7+14+14+42)])[,2]
-  results.sigmas["Powerstation"] <- rep(colnames(psc_template), 
+  results.sigmas["Powerstation"] <- rep(ps.names, 
                                         each=ts)
   
   #only use specified functions
   if (options.ps2!="all"){
-    results.mus <- results.mus[results.mus$Powerstation==colnames(psc_template)[options.ps2], ]
-    results.sigmas <- results.sigmas[results.sigmas$Powerstation==colnames(psc_template)[options.ps2], ]
+    results.mus <- results.mus[results.mus$Powerstation==ps.names[options.ps2], ]
+    results.sigmas <- results.sigmas[results.sigmas$Powerstation==ps.names[options.ps2], ]
   }
   
   ###mus
@@ -229,7 +234,7 @@ Analyse.Results <- function(res.choose=4){
     #names(myColors) <- levels(colnames(psc_template))
     #colScale <- scale_colour_manual(name = "Powerstation",values = myColors)
     
-    ps_chosen.name <- colnames(psc_template)[ps_chosen]
+    ps_chosen.name <- ps.names[ps_chosen]
     results.mus.chosen <- results.mus[results.mus[,5]==ps_chosen.name, ]
     head(results.mus)
     
@@ -242,7 +247,7 @@ Analyse.Results <- function(res.choose=4){
       scale_y_continuous(breaks=seq(0, 2000, 50)) + 
       scale_x_continuous(breaks=seq(0, 100, 10)) + 
       ylab("Stockpile level (ktons)") 
-  
+    
     p.mus.chosen
     ggsave(file=paste(optPath,"\\", graphname, "stockpile.ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=9)
   }
@@ -280,7 +285,9 @@ Analyse.Results <- function(res.choose=4){
 
 
 
-Analyse.Results(1)
-Analyse.Results(2)
-Analyse.Results(3)
-Analyse.Results(4)
+# Analyse.Results(1)
+# Analyse.Results(2)
+# Analyse.Results(3)
+# Analyse.Results(4)
+
+Analyse.Results(4,TRUE)
