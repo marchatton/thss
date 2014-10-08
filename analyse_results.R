@@ -10,7 +10,7 @@ sink()
 
 maxIterations <- 1
 N <- 1
-fp_set <- 0
+fp_set <- 5
 
 ###### START STOPWATCH
 tic <- Sys.time() #begin stopwatch
@@ -18,37 +18,37 @@ tic <- Sys.time() #begin stopwatch
 ###### FILE PATHS USED IN OPTIMISER
 ## !!Adjust these paths to the folder where EFS is running!!
 ## First Start DIAS then Run this in RStudio
-## !!First Start DIAS then Run this in RStudio!!
 if (fp_set == 0){
-  Rcode_path  <- file.path("H:\\R code - Marc\\thss") 
+  Rcode_path  <- file.path("H:\\R code - Marc\\thss") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }else if(fp_set == 1){
-  Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") 
+  Rcode_path  <- file.path("C:\\Users\\17878551\\Desktop\\EFS APP\\Rcode") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }else if(fp_set == 2){
-  Rcode_path  <- file.path("H:\\R code - Marc2") 
+  Rcode_path  <- file.path("H:\\R code - Marc2") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }else if(fp_set == 3){
-  Rcode_path  <- file.path("H:\\R code - Marc3") 
+  Rcode_path  <- file.path("H:\\R code - Marc3") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }else if(fp_set == 4){
-  Rcode_path  <- file.path("H:\\R code - Marc4") 
+  Rcode_path  <- file.path("H:\\R code - Marc4") #where to source Rcode
   THEPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\17878551\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }else if(fp_set == 5){
-  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\MEGA\\Postgraduate\\Thesis\\Algorithms\\R code - Marc") 
+  Rcode_path  <- file.path("C:\\Users\\MarcHatton\\Desktop\\EFS APP\\Rcode") #where to source Rcode
   THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+  print(fp_set)
 }
-
-print(paste("Using computer",fp_set))
-print(Rcode_path)
-print(THEPATH)
-print(THEDBPATH)
 
 ###### NECESSARY INITIAL VALUES USED IN DEFINING SETTINGS
 func_name <- "CEM"
@@ -96,10 +96,11 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
   
   if (confidential==FALSE){
     ps.names <- colnames(psc_template)
-  } else if (confidential==TRUE){
-    ps.names <- paste("Powerstation ", 1:psc_tot, sep="")
+  }else if (confidential==TRUE){
+    ps.names <- LETTERS[1:psc_tot]
   }
-    
+  
+  
   results.costs <- results[, c(1, 2:7)]
   colnames(results.costs) <- c("Iteration", "Overall.mu", "Holding", 
                                "Shortage", "Emergency", "Cancellation", "Overall.quantile")
@@ -138,10 +139,9 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
                fill = "white",    
                size = 2)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Desired stockpile level (ktons)") +
+    ylab("Target (ktons)") +
     scale_y_continuous(breaks=seq(0, 1000,50)) +  
-    scale_x_continuous(breaks=seq(0, 100, 10)) + 
-    ggtitle(title_)
+    scale_x_continuous(breaks=seq(0, 100, 10)) 
   p.mus.des
   ggsave(file=paste(optPath,"\\", graphname, "mus-des.pdf",sep=""),height=6,width=9)
   
@@ -155,8 +155,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
       scale_shape_manual(values=(1:psc_tot -1)) +
       ylab("LWL (ktons)") +
       scale_y_continuous(breaks=seq(0, 1000,25)) + 
-      scale_x_continuous(breaks=seq(0, 100, 10)) + 
-      ggtitle(title_)
+      scale_x_continuous(breaks=seq(0, 100, 10))
     p.mus.lwl
     ggsave(file=paste(optPath,"\\", graphname, "mus-lwl.pdf",sep=""),height=6,width=9)
   }
@@ -171,8 +170,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
       scale_shape_manual(values=(1:psc_tot -1)) +
       scale_y_continuous(breaks=seq(0, 2000, 100)) + 
       scale_x_continuous(breaks=seq(0, 100, 10)) + 
-      ylab("UWL (ktons)") +
-      ggtitle(title_)
+      ylab("UWL (ktons)") 
     p.mus.uwl
     ggsave(file=paste(optPath,"\\", graphname, "mus-uwl.pdf",sep=""),height=6,width=9)
   }
@@ -189,8 +187,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
     scale_shape_manual(values=(1:psc_tot -1)) +
     scale_y_continuous(breaks=seq(0, 2000, 25)) + 
     scale_x_continuous(breaks=seq(0, 100, 10)) + 
-    ylab("Desired stockpile level (ktons)") +
-    ggtitle(title_)
+    ylab("Target (ktons)") 
   p.sigmas.des
   ggsave(file=paste(optPath,"\\", graphname, "sigmas-des.pdf",sep=""),height=6,width=9)
   
@@ -204,8 +201,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
       scale_shape_manual(values=(1:psc_tot -1)) +
       scale_y_continuous(breaks=seq(0, 2000, 25)) + 
       scale_x_continuous(breaks=seq(0, 100, 10)) + 
-      ylab("LWL (ktons)") +
-      ggtitle(title_)
+      ylab("LWL (ktons)") 
     p.sigmas.lwl
     ggsave(file=paste(optPath,"\\", graphname, "sigmas-lwl.pdf",sep=""),height=6,width=9)
   }
@@ -220,8 +216,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
       scale_shape_manual(values=(1:psc_tot -1)) +
       scale_y_continuous(breaks=seq(0, 2000, 25)) + 
       scale_x_continuous(breaks=seq(0, 100, 10)) + 
-      ylab("UWL (ktons)") +
-      ggtitle(title_)
+      ylab("UWL (ktons)") 
     p.sigmas.uwl
     ggsave(file=paste(optPath,"\\", graphname, "sigmas-uwl.pdf",sep=""),height=6,width=9)
   }
@@ -231,7 +226,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
   Stockpile.Ribbon <- function(ps_chosen=1){
     # #create custom palette
     #myColors <- colorRampPalette(brewer.pal(9,"Set1"))(psc_tot)
-    #names(myColors) <- levels(colnames(psc_template))
+    #names(myColors) <- levels(ps.names)
     #colScale <- scale_colour_manual(name = "Powerstation",values = myColors)
     
     ps_chosen.name <- ps.names[ps_chosen]
@@ -247,7 +242,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
       scale_y_continuous(breaks=seq(0, 2000, 50)) + 
       scale_x_continuous(breaks=seq(0, 100, 10)) + 
       ylab("Stockpile level (ktons)") 
-    
+  
     p.mus.chosen
     ggsave(file=paste(optPath,"\\", graphname, "stockpile.ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=9)
   }
@@ -255,7 +250,7 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
   ###loop through stockpile ribbon function
   if ((options.ps2>0) && (options.ps2<=psc_tot)){
     Stockpile.Ribbon(options.ps2)
-  }else if(options.ps2!="all"){
+  }else if(options.ps2=="all"){
     draw.count <- 0
     while (draw.count<psc_tot){
       draw.count <- draw.count+1
@@ -281,13 +276,47 @@ Analyse.Results <- function(res.choose=4, confidential=FALSE){
   p.costs.quan
   ggsave(file=paste(optPath,"\\", graphname, "costs-Zquan.pdf",sep=""),height=6,width=9)
   
+  #@@
+  results.costs$value <- results.costs$value*10/1000000
+  p.costs.mu <- ggplot(data=results.costs[results.costs["Cost"]=="Overall.mu",], aes(x=Iteration, y=value)) + 
+    geom_line() +
+    geom_point(size=3) +
+    xlab("Iteration") +
+    ylab("Rands (million)") +
+    scale_x_continuous(breaks=seq(0,100,10)) +
+    scale_y_continuous(breaks=seq(0,5,1), limits=c(0,5))
+  p.costs.mu
+  ggsave(file=paste(optPath,"\\", graphname, "costs-Zmu.pdf",sep=""),height=6,width=9)
+  
+  SP1day.ave2 <- c(17.37026, 14.59808, 25.62025, 10.94664, 17.03563, 51.92641, 39.03720, 43.67920,  9.14883, 11.85286, 37.52245, 30.37924, 27.31237, 10.00592)
+  
+  ## plot last iteration
+  iter.last <- max(results.mus$Iteration)
+  results_SPdays.iter.last <- results.mus[results.mus$Iteration==iter.last, ]
+  results_SPdays.iter.last[, 2:4] <- results_SPdays.iter.last[, 2:4] / SP1day.ave2 #*1.2 +10 #@@
+  
+  p.mus.chosen <- ggplot(results_SPdays.iter.last, aes(x=Powerstation)) + 
+         geom_boxplot(aes(lower=LWL, 
+                          upper=UWL, 
+                          middle=Desired,
+                          ymin=LWL,
+                          ymax=UWL), stat="identity", width=0.6) +
+    scale_y_continuous(breaks=seq(0, 50, 5), limits=c(0,50)) + 
+    ylab("Stockpile level (days)") 
+#   +
+#     theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4), axis.title.x=element_blank(), axis.title.y=element_blank())
+     
+  p.mus.chosen
+  ggsave(file=paste(optPath,"\\", graphname, "final-results", ".pdf",sep=""),height=6,width=9)
+  
+  #@@
 }
 
 
 
+
+Analyse.Results(4, TRUE)
 # Analyse.Results(1)
 # Analyse.Results(2)
 # Analyse.Results(3)
 # Analyse.Results(4)
-
-Analyse.Results(4,TRUE)

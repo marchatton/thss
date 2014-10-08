@@ -1,20 +1,43 @@
+obj.target <- psc_template
+obj.y  <- psc_template
+
+obj.1day <- psc_template
+obj.1day[,] <- rep(SP1day_ave, each=interval_num)
+
+pen_emer <- function(){
+  obj.target[,] <- rep(dv_SPinitial, each=interval_num)
+  
+  obj.y[,] <- (1.25*
+             (exp(-1.25*0.01*(obj.target/obj.1day)*
+                    ((obj.target/obj.1day-SPvar_emer/obj.1day)-min_SPdays))) 
+           + 0.25)
+    
+  obj.y[(obj.target/obj.1day-SPvar_emer/obj.1day)-min_SPdays < 0] <- 1.5
+#   y
+  
+#   SP=seq(5,20,length=600)
+#   y=(1.25*(exp(-1.25*0.01*dv_SPinitial*(SP-minSPlevel)))+0.25)
+#   plot(SP,y,type="l",lwd=2,col="red",ylab="p")
+  return(obj.y)
+}
+
+
 obj_func <- function(){
 z <- c(0,0,0,0)
 
 #### objective function
 # penalties/costs
-hc <- 10 #holding cost
+hc <- sensivity.costs$hc[sen.anal] #holding cost
 ave_prod_cost <- mean(unlist(psc_cost)) #shortage
-pen_shor <- ave_prod_cost*150 #shortage
-min_SPdays <- 2 #shortage
-pen_emer <- 1 #penalty
-pen_canc <- 0.5 #cancellation
+pen_shor <- ave_prod_cost * sensivity.costs$sc[sen.anal] #shortage
+# pen_emer <- 1 #penalty
+pen_canc <- sensivity.costs$cc[sen.anal] #cancellation
 
 
 ## options.sp defines which stockpiles are being optimised.  
   
 #1 holding cost
-z[1] <- sum(psc_SPvol[, options.ps])*hc
+z[1] <- sum(psc_SPvol[, options.ps] * psc_cost[, options.ps]) * hc
 
 #2 shortage penalty
 min_coal_level <- psc_template
@@ -28,8 +51,8 @@ z[2] <- sum( (psc_SPvol[, options.ps] < min_coal_level[, options.ps]) *
 if (options.dv == 3){
 #3 emergency delivery cost
 z[3] <- sum(psc_cost[, options.ps] * 
-              delv_emer[, options.ps]) * 
-                pen_emer
+              delv_emer[, options.ps] * 
+                pen_emer())
 
 #4 cancellation of delivery cost
 z[4] <- sum(psc_cost[, options.ps] * 

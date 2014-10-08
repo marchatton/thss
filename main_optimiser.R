@@ -1,4 +1,4 @@
-optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
+optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
   
   ############################ INITIALISATION ################################
   
@@ -28,9 +28,7 @@ optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, o
     print(paste("powerstation ", options.ps," (", colnames(psc_template)[options.ps], ") ",  "will be optimised", sep=""))
   }
   
-  ###### LOAD OBJECTIVE FUNCTION
-  source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
-  
+
   ###### CHECK THAT ESTIMATED VALUES EXIST
   # Stop the optimiser if the estimator has not been run initially.
   # If file doesnt exist, stop the optimiser. Estimates are required for the optimiser's planned deliveries.
@@ -50,6 +48,7 @@ optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, o
   psc_cost      <- getDBvalues(param_ = 'COSTOFSUPPLY', paramkind_='INP')
   
   #simulation settings
+  changeSimSet(seed=10, iter=1000)
   print(paste("simulation seed =", CM_sim_settings()$SEED))
   print(paste("simulation iter =", CM_sim_settings()$ITERATIONS))
   
@@ -79,6 +78,9 @@ optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, o
   ### DELIVERY CONSTRAINTS
   llim_delv <- rep(0,psc_tot)
   ulim_delv <- rep(3000,psc_tot)
+  
+  ### MIN SP level
+  min_SPdays <- 5 #shortage
   
   ### DV = Stockpiles: Initial(desired), UpperWarningLimit & LowerWarningLimit.
   # initialise all mus and sigmas
@@ -113,6 +115,17 @@ optimser.csps <- function(maxIterations=50, N=50, options.ps=99, options.dv=3, o
   # Decision variables: UWL
   mus[2*psc_tot + 1:psc_tot] <- (dv_SPinitial*llim_upper + ulim_upper) /2
   sigmas[2*psc_tot + 1:psc_tot] <- (ulim_upper-dv_SPinitial)*sigma.factor  #@@@
+  
+  ###### LOAD OBJECTIVE FUNCTION
+  source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
+  
+  ###### SENSITIVITY ANALYSIS
+  sensivity.costs <- data.frame(hc=c(0.1),
+                                sc=c(150),
+                                ec.lo=c(0.25),
+                                ec.up=c(1.25),
+                                cc=c(0.5)
+    )
   
   ###### INITIALISE OTHER VALUES USED IN OPTIMSER
   elite <- as.integer(rho*N)

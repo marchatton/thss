@@ -3,6 +3,7 @@ delv_canc <- psc_template
 delv_emer[,] <- 0
 delv_canc[,] <- 0
 SPvar <- 0 
+SPvar_emer <- psc_template
 dv_delv[,] <- dv_delv_base
 
 leadtime_ul <- 3
@@ -54,6 +55,12 @@ for (iii in 1:(interval_num-1)){
         delv_var.future
     )
     
+    #used for calculation of emergency costs
+    SPvar_emer[iii,jjj] <- ifelse(dv_SPinitial[jjj] - psc_SPvol[iii,jjj] > 0,
+                                  dv_SPinitial[jjj] - psc_SPvol[iii,jjj],
+                                  0                    
+    )
+    
     # emer delv
     if ((psc_SPvol[iii,jjj] + delv_var.future) < lw_){ # if actual < LowerWarning
       leadtime <- leadtime_rand()
@@ -89,3 +96,4 @@ for (iii in 1:(interval_num-1)){
 
 delv_emer[,] <- delv_emer.future[1:interval_num, ]
 delv_canc[,] <- delv_canc.future[1:interval_num, ]
+SPvar_emer[interval_num, ] <- 0
