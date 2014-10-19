@@ -16,6 +16,12 @@ optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, op
   func_name <- "CEM"
   t <- 1 # time-step counter
   
+  ###### SENSITIVITY ANALYSIS
+  sensivity.costs <- data.frame(hc=rep(c(1.75,0.75),4),
+                                ec=rep(c(0.8,0.2),times=2, each=2),
+                                cc=rep(c(0.0875,0.0775), each=4)
+  )  
+  
   ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
   source(paste(Rcode_path,"main_settings.R",sep=.Platform$file.sep), local=TRUE)
   
@@ -119,13 +125,7 @@ optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, op
   ###### LOAD OBJECTIVE FUNCTION
   source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
   
-  ###### SENSITIVITY ANALYSIS
-  sensivity.costs <- data.frame(hc=c(0.1),
-                                sc=c(150),
-                                ec.lo=c(0.25),
-                                ec.up=c(1.25),
-                                cc=c(0.5)
-    )
+
   
   ###### INITIALISE OTHER VALUES USED IN OPTIMSER
   elite <- as.integer(rho*N)
