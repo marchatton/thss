@@ -7,42 +7,59 @@ obj.mean <- sensivity.costs$ec[sen.anal]
 
 min_coal_level <- psc_template
 min_coal_level[,] <- rep(as.vector(SP1day_ave), times=1, each=interval_num) * min_SPdays
+obj.min <- min_coal_level/obj.1day
+obj.coalcost <- psc_cv/psc_heatrate * psc_cost *1000 # convert from R/MWh to R/kton
+
+# penalties/costs
+hc <- ( (1+sensivity.costs$hc[sen.anal])^(1/12) - 1) *12
+pen_shor <- psc_cv / psc_heatrate * 75 * 1000
+pen_canc <- sensivity.costs$cc[sen.anal] #cancellation
 
 pen_emer <- function(){
-  obj.target[,] <- rep(dv_SPinitial, each=interval_num)
-  obj.actual <- SPvar_emer/obj.1day
+  obj.target[,] <- rep(dv_SPinitial, each=interval_num)/obj.1day
+  obj.var <- SPvar_emer/obj.1day
   
-  if (obj.actual < min_coal_level){
-    obj.y[,] <- obj.mean
-  }else if ((min_coal_level <= obj.actual ) && (obj.actual < obj.target)){
-    obj.y <- obj.mean *
-    exp(-obj.mean * (obj.actual - min_coal_level)/
-          (obj.target-min_coal_level) * 2.5) + 
+  obj.y <- obj.mean *
+    exp(-obj.mean * ((obj.target-obj.min) - obj.var)/
+          (obj.target-obj.min) * 2.5) + 
     0.25
-  }else{
-    obj.y[,] <- 0
-  }
+  
+  obj.y [(obj.target-obj.min) - obj.var < 0] <- obj.mean + 0.25
   
   return(obj.y)
 }
 
+# xyz <- psc_template
+# xyz[,] <- 50*rep(SP1day_ave, each=interval_num)
+# sum(xyz[, options.ps] * obj.coalcost[, options.ps]) * ((1+hc)^(1/12)-1) *12      /1000000000*12/8
+
+
+# pen_emer <- function(){
+#   obj.target[,] <- rep(dv_SPinitial, each=interval_num)
+#   obj.actual <- SPvar_emer/obj.1day
+#   
+#   if (obj.actual < min_coal_level){
+#     obj.y[,] <- obj.mean
+#   }else if ((min_coal_level <= obj.actual ) && (obj.actual < obj.target)){
+#     obj.y <- obj.mean *
+#       exp(-obj.mean * (obj.actual - min_coal_level)/
+#             (obj.target-min_coal_level) * 2.5) + 
+#       0.25
+#   }else{
+#     obj.y[,] <- 0
+#   }
+#   
+#   return(obj.y)
+# }
+
+# sum(xyz[, options.ps] * obj.coalcost[, options.ps]) * ((1+hc)^(1/12)-1) *12      /1000000000*12/8
+
+
 obj_func <- function(){
   z <- c(0,0,0,0)
   
-  #### objective function
-  # penalties/costs
-  hc <- sensivity.costs$hc[sen.anal] #holding cost
-  
-  psc_heatrate   <- getDBvalues(param_ = 'HEATRATE', paramkind_ = 'INP')
-  psc_cv   <- getDBvalues(param_ = 'CV', paramkind_ = 'INP')
-  pen_shor <- psc_cv / psc_heatrate * 75 * 1000
-  
-  pen_canc <- sensivity.costs$cc[sen.anal] #cancellation
-    
-  ## options.sp defines which stockpiles are being optimised.  
-  
   #1 holding cost
-  z[1] <- sum(psc_SPvol[, options.ps] * psc_cost[, options.ps]) * hc
+  z[1] <- sum(psc_SPvol[, options.ps] * obj.coalcost[, options.ps]) * hc 
   
   #2 shortage penalty
   z[2] <- sum( (psc_SPvol[, options.ps] < min_coal_level[, options.ps]) *
@@ -62,7 +79,6 @@ obj_func <- function(){
                   delv_canc[, options.ps]) * 
       pen_canc
     
-    return(z)
   }
   
   # return all costs

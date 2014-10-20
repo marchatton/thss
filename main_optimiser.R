@@ -1,4 +1,4 @@
-optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
+optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
   
   ############################ INITIALISATION ################################
   
@@ -17,9 +17,9 @@ optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, op
   t <- 1 # time-step counter
   
   ###### SENSITIVITY ANALYSIS
-  sensivity.costs <- data.frame(hc=rep(c(1.75,0.75),4),
-                                ec=rep(c(0.8,0.2),times=2, each=2),
-                                cc=rep(c(0.0875,0.0775), each=4)
+  sensivity.costs <- data.frame(ec=c(rep(c(1.75,0.75),4) , 1.25),
+                                cc=c(rep(c(0.8,0.2),times=2, each=2) , 0.5),
+                                hc=c(rep(c(0.0875,0.0775), each=4) , 0.0825)
   )  
   
   ###### MAIN SETTINGS. MUST CHANGE FILEPATHS IF RUNNING ON A DIFFERENT COMPUTER. MUST ALSO INSTALL PACKAGES LISTED THEREIN.
@@ -52,6 +52,8 @@ optimser.csps <- function(sen.anal=1, maxIterations=100, N=50, options.ps=99, op
   psc_burnout   <- getDBvalues(param_ = 'COAL_BURN_OUT', paramkind_ = 'RES')
   psc_SPvol     <- getDBvalues(param_ = 'STOCKPILE_VOL', paramkind_ = 'RES')
   psc_cost      <- getDBvalues(param_ = 'COSTOFSUPPLY', paramkind_='INP')
+  psc_heatrate  <- getDBvalues(param_ = 'HEATRATE', paramkind_ = 'INP')
+  psc_cv        <- getDBvalues(param_ = 'CV', paramkind_ = 'INP')
   
   #simulation settings
   changeSimSet(seed=10, iter=1000)
