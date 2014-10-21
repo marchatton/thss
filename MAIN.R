@@ -35,6 +35,10 @@ if (fp_set == 0){
   Rcode_path  <- file.path("C:\\Users\\MarcHatton\\Desktop\\EFS APP\\Rcode") 
   THEPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\MarcHatton\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+}else if(fp_set == 6){
+  Rcode_path  <- file.path("C:\\Users\\15720314\\Desktop\\EFS APP\\Rcode") 
+  THEPATH  <-  "C:\\Users\\15720314\\Desktop\\EFS APP"
+  THEDBPATH  <-  "C:\\Users\\15720314\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
 }
 
 print(paste("Using computer",fp_set))
@@ -56,5 +60,6 @@ source(paste(Rcode_path,"main_optimiser.R", sep=.Platform$file.sep), local=TRUE)
 
 
 #************* RUN OPTIMISER ******************
-optimser.csps(maxIterations=20, N=30)
+# optimser.csps(maxIterations=20, N=30)
+optimser.csps(sen.anal=9)
 # optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
