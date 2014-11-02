@@ -1,4 +1,5 @@
 ###### Make sure these R packages are installed
+library(rJava)
 library(rjson)
 library(zoo)
 library(RH2)

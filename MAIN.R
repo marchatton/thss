@@ -39,7 +39,12 @@ if (fp_set == 0){
   Rcode_path  <- file.path("C:\\Users\\15720314\\Desktop\\EFS APP\\Rcode") 
   THEPATH  <-  "C:\\Users\\15720314\\Desktop\\EFS APP"
   THEDBPATH  <-  "C:\\Users\\15720314\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
+}else if(fp_set == 7){
+  Rcode_path  <- file.path("C:\\Users\\17090792\\Desktop\\EFS APP\\Rcode") 
+  THEPATH  <-  "C:\\Users\\17090792\\Desktop\\EFS APP"
+  THEDBPATH  <-  "C:\\Users\\17090792\\Desktop\\EFS APP\\e-breadboard\\resources\\za.co.enerweb_energy-flow-simulator3-var\\dbs" 
 }
+
 
 print(paste("Using computer",fp_set))
 print(Rcode_path)
@@ -53,6 +58,8 @@ if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
 ###### LOAD ESTIMATOR & OPTIMISER
 source(paste(Rcode_path,"main_estimates.R", sep=.Platform$file.sep), local=TRUE)
 source(paste(Rcode_path,"main_optimiser.R", sep=.Platform$file.sep), local=TRUE)
+source(paste(Rcode_path,"point_estimator.R", sep=.Platform$file.sep), local=TRUE)
+
 
 
 #************* RUN ESTIMATOR ******************

@@ -43,13 +43,13 @@ getDBvalues <- function(param_=NA, paramkind_=NA, type_='COAL_PS', ent_='POWERST
     temp_ <- data.frame(matrix(ncol=instances_tot, nrow=interval_num))
     colnames(temp_) <- instances_[,2]
     instance <- efsGetInstance(con, gentypedef,instances_[1,2])
-    result <- efsReadParam(con,gentypedef,instance$ID, genparamdef,startdate,enddate,interval,index=sim_index[3]) #index required. 3 = MEAN. go to main_settings for more info.
+    result <- efsReadParam(con,gentypedef,instance$ID, genparamdef,startdate,enddate,interval,index=sim_index[out.stat]) #index required. 3 = MEAN. go to main_settings for more info.
     rownames(temp_) <- as.Date(time(result))
     
     #create dataframe
     for (i in 1:instances_tot){
       instance <- efsGetInstance(con, gentypedef,instances_[i,2])
-      result <- efsReadParam(con,gentypedef,instance$ID, genparamdef,startdate,enddate,interval, index=sim_index[3]) #index required. 3 = MEAN
+      result <- efsReadParam(con,gentypedef,instance$ID, genparamdef,startdate,enddate,interval, index=sim_index[out.stat]) #index required. 3 = MEAN
       temp_[as.character((instance$CAPTION))] <- result
     }
   }
