@@ -166,7 +166,8 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
               paste('si_up', 1:psc_tot, sep=""), #sigma of lower warning
               paste('emer', 1:(interval_num*psc_tot), sep=""), #emergency deliveries
               paste('canc', 1:(interval_num*psc_tot), sep=""), #cancellation of deliveries
-              paste('base', 1:(interval_num*psc_tot), sep="") #baseline deliveries            
+              paste('base', 1:(interval_num*psc_tot), sep=""), #baseline deliveries            
+              paste('SP', 1:(interval_num*psc_tot), sep="") #baseline deliveries  
   )
   write.row(header)
   
@@ -176,7 +177,8 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
               sigmas,
               rep(0,interval_num*psc_tot),
               rep(0,interval_num*psc_tot),
-              dv_delv_base
+              dv_delv_base,
+              rep(0,interval_num*psc_tot)
   ))
   
   #################################### MAIN LOOP ######################################
@@ -251,7 +253,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
     Z_mus <- sum(obj_func())
     
     # export results of algorithm iteration (t) to .csv
-    write.row(c(t, CM_sim_settings()$SEED, Z_mus,obj_func(), z_quantile[t], mus, sigmas, unlist(delv_emer), unlist(delv_canc), unlist(dv_delv)))
+    write.row(c(t, CM_sim_settings()$SEED, Z_mus,obj_func(), z_quantile[t], mus, sigmas, unlist(delv_emer), unlist(delv_canc), unlist(dv_delv), unlist(psc_SPvol)))
     
     # only store each sorted population is interested in calculating the half.width. (OTHERWISE IGNORE)
     if (option.halfwidth==TRUE){
