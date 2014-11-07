@@ -56,7 +56,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   psc_cv        <- getDBvalues(param_ = 'CV', paramkind_ = 'INP')
   
   #simulation settings
-  changeSimSet(seed=10, iter=1000)
+  changeSimSet(seed=555, iter=1000)
   print(paste("simulation seed =", CM_sim_settings()$SEED))
   print(paste("simulation iter =", CM_sim_settings()$ITERATIONS))
   
@@ -102,10 +102,10 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   ### INITIAL (DESIRED) SP
   # Constraints
   llim_init <- SP1day_ave*5
-  ulim_init <- SP1day_ave*25
+  ulim_init <- SP1day_ave*40
   
   # Initial decision variables
-  dv_SPinitial <- SP1day_ave*15 
+  dv_SPinitial <- SP1day_ave*20 
   mus[1:psc_tot] <- dv_SPinitial 
   sigmas[1:psc_tot] <- (ulim_init-llim_init)*sigma.factor #@@@
   

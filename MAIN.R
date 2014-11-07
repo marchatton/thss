@@ -55,6 +55,12 @@ if (!(exists("Rcode_path") && exists("THEPATH") && exists("THEDBPATH"))) {
   stop("For the optimiser (and estimator) to work, filepaths must be set!") 
 }
 
+# print("!!!!LOAD SHEDDING!!!!")
+# print("!!!!LOAD SHEDDING!!!!")
+# print("!!!!LOAD SHEDDING!!!!")
+# print("!!!!LOAD SHEDDING!!!!")
+# print("!!!!LOAD SHEDDING!!!!")
+
 ###### LOAD ESTIMATOR & OPTIMISER
 source(paste(Rcode_path,"main_estimates.R", sep=.Platform$file.sep), local=TRUE)
 source(paste(Rcode_path,"main_optimiser.R", sep=.Platform$file.sep), local=TRUE)
@@ -68,5 +74,5 @@ source(paste(Rcode_path,"point_estimator.R", sep=.Platform$file.sep), local=TRUE
 
 #************* RUN OPTIMISER ******************
 # optimser.csps(maxIterations=20, N=30)
-optimser.csps(sen.anal=9)
+optimser.csps(sen.anal=1)
 # optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
