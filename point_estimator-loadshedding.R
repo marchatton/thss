@@ -1,14 +1,17 @@
-optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE, out.stat=3){
+sen.anal=9
+maxIterations=100
+options.ps=99
+options.dv=3
+options.eval=1
+option.halfwidth=FALSE
+
+point_est.csps <- function (sen.anal=9, maxIterations=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE){
   
   ############################ INITIALISATION ################################
   
   # calculate estimated completion time
-  if (options.dv == 3){
-    print(paste("estimated completion time = ", round(maxIterations*N*15*8/60/60,2), " hours", sep="")) 
-  }else if (options.dv == 1){
-    print(paste("estimated completion time = ", round(maxIterations*N*15/60/60,2), " hours", sep="")) 
-  }
-  
+  print(paste("estimated completion time ", round(maxIterations*18/60/60,2), " hours.", sep="")) 
+    
   # begin stopwatch
   tic <- Sys.time() 
   
@@ -38,8 +41,8 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   ###### CHECK THAT ESTIMATED VALUES EXIST
   # Stop the optimiser if the estimator has not been run initially.
   # If file doesnt exist, stop the optimiser. Estimates are required for the optimiser's planned deliveries.
-  if (!file.exists(paste(optEstPath,"est_burnout.csv",sep=sep_))) {
-    stop("For the optimiser to work, 'main_estimates.R' must first be run.") 
+  if (!file.exists(paste(optPath,"/final-results/base1/result.csv",sep=sep_))) {
+    stop("For the optimiser to work, optimiser must first be run.") 
   }
   
   ###### GET INITIAL VALUES FROM EFS DATABASE
@@ -56,7 +59,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   psc_cv        <- getDBvalues(param_ = 'CV', paramkind_ = 'INP')
   
   #simulation settings
-  changeSimSet(seed=555, iter=1000)
+  changeSimSet(seed=10, iter=1000)
   print(paste("simulation seed =", CM_sim_settings()$SEED))
   print(paste("simulation iter =", CM_sim_settings()$ITERATIONS))
   
@@ -72,6 +75,14 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   
   setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
   psc_delvin <- getDBvalues(param_ = 'COAL_DELIVERY_IN', paramkind_='INP')
+  
+  
+  ######
+  results <- read.csv(text=readLines(paste(optPath, "/final-results/base1/result.csv", sep=sep_))[-(1:9)])
+  results <- results[nrow(results),]
+  results.mu <- as.numeric(results[, 1:42 + 8])
+  results.sigma <- as.numeric(results[, 1:42 + 8 +42])
+  
   
   ###### NUMBER OF DECISION VARIABLES
   numVar <- 3*psc_tot
@@ -92,23 +103,19 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   
   ### DV = Stockpiles: Initial(desired), UpperWarningLimit & LowerWarningLimit.
   # initialise all mus and sigmas
-  mus <- rep(NA,numVar)
-  sigmas <- rep(NA,numVar) 
-  sigma.factor <- 5 #@@@
-  
+  mus <- unlist(results.mu)
+  sigmas <- unlist(results.sigma)
   # Calc 1 sp day average
   SP1day_ave <- apply(psc_burnout,2,mean)/30
+  
+  # Initial decision variables
+  dv_SPinitial <- mus[1:psc_tot]
   
   ### INITIAL (DESIRED) SP
   # Constraints
   llim_init <- SP1day_ave*5
-  ulim_init <- SP1day_ave*40
-  
-  # Initial decision variables
-  dv_SPinitial <- SP1day_ave*20 
-  mus[1:psc_tot] <- dv_SPinitial 
-  sigmas[1:psc_tot] <- (ulim_init-llim_init)*sigma.factor #@@@
-  
+  ulim_init <- SP1day_ave*25
+    
   ### LOWER WARNING LIMIT & UPPER WARNING LIMIT
   # Constraints: LWL & UWL
   llim_lower <- SP1day_ave*1
@@ -116,33 +123,17 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   llim_upper <- 1.1 # It is a factor of each randomly generated initial (desired) stockpile level.
   ulim_upper <- SP1day_ave*30
   
-  # Decision variables: LWL
-  mus[psc_tot + 1:psc_tot] <- (llim_lower + dv_SPinitial*ulim_lower) /2
-  sigmas[psc_tot + 1:psc_tot] <- (dv_SPinitial-llim_lower)*sigma.factor  #@@@
-  
-  # Decision variables: UWL
-  mus[2*psc_tot + 1:psc_tot] <- (dv_SPinitial*llim_upper + ulim_upper) /2
-  sigmas[2*psc_tot + 1:psc_tot] <- (ulim_upper-dv_SPinitial)*sigma.factor  #@@@
-  
   ###### LOAD OBJECTIVE FUNCTION
   source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
-  
-
-  
-  ###### INITIALISE OTHER VALUES USED IN OPTIMSER
-  elite <- as.integer(rho*N)
-  mus_prev <- rep(NA,numVar)
-  sigmas_prev <- rep(NA,numVar)
-  x <- matrix(0,N,numVar) # population matrix
-  Z_x <- matrix(0,N,1+numVar) #objective function including: x, obj func value, emer & canc deliveries
-  sigma_quantile <- matrix(NA,numVar,maxIterations)
-  z_quantile <- rep(NA,maxIterations)
   
   delv_emer <- psc_template
   delv_canc <- psc_template
   delv_emer[,] <- 0
   delv_canc[,] <- 0
   SPvar <- 0
+  
+  sigma_quantile <- matrix(NA,numVar,maxIterations)
+  z_quantile <- rep(NA,maxIterations)
   
   ###### WRITE TO RESULTS FILE
   #print parameters
@@ -151,7 +142,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   write.row(c('options.dv',options.dv))
   write.row(c('options.eval',options.eval))
   write.row(c('rho',rho))
-  write.row(c('N',N))
+  write.row(c('N',0))
   write.row(c('maxIterations',maxIterations))
   write.row(c('alpha',alpha))
   write.row('')
@@ -166,10 +157,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
               paste('si_up', 1:psc_tot, sep=""), #sigma of lower warning
               paste('emer', 1:(interval_num*psc_tot), sep=""), #emergency deliveries
               paste('canc', 1:(interval_num*psc_tot), sep=""), #cancellation of deliveries
-              paste('base', 1:(interval_num*psc_tot), sep=""), #baseline deliveries            
-              paste('SP', 1:(interval_num*psc_tot), sep=""), #sp out
-              paste('del', 1:(interval_num*psc_tot), sep=""), #delv out
-              paste('bur', 1:(interval_num*psc_tot), sep="") #burn out
+              paste('base', 1:(interval_num*psc_tot), sep="") #baseline deliveries            
   )
   write.row(header)
   
@@ -179,10 +167,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
               sigmas,
               rep(0,interval_num*psc_tot),
               rep(0,interval_num*psc_tot),
-              dv_delv_base,
-              rep(0,interval_num*psc_tot),
-              rep(0,interval_num*psc_tot),
-              rep(0,interval_num*psc_tot)
+              dv_delv_base
   ))
   
   #################################### MAIN LOOP ######################################
@@ -191,56 +176,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   # {   # @@@
   
   while (t <= maxIterations){
-    # for the smoothing function
-    mus_prev <- mus
-    sigmas_prev <- sigmas
-    
-    # generate population of random values
-    for (j in 1:psc_tot){ 
-      x[,j]            <- rtruncnorm(N, a=llim_init[j],  b=ulim_init[j],  mean=mus[j], sd=sigmas[j])
-      x[,j + psc_tot]  <- rtruncnorm(N, a=llim_lower[j], b=ulim_lower*dv_SPinitial[j], mean=mus[j+psc_tot], sd=sigmas[j+psc_tot])
-      x[,j+ 2*psc_tot] <- rtruncnorm(N, a=llim_upper*dv_SPinitial[j], b=ulim_upper[j], mean=mus[j+2*psc_tot], sd=sigmas[j+2*psc_tot])
-    }
-    
-    # calculate the emergency/cancellation of deliveries for the x's. Also, calculate the objective function value.
-    for(kkk in 1:N){
-      # Analyse the current 'person' in the population
-      dv_SPinitial <- x[kkk,1:psc_tot]
-      dv_SPlower   <- x[kkk,1:psc_tot + psc_tot]
-      dv_SPupper   <- x[kkk,1:psc_tot + 2*psc_tot]
-      source(paste(Rcode_path,"main_sim.R",sep=sep_), local=TRUE) #call the simulator
-      
-      # only calculate emer/canc if options.dv == 3. i.e. if using LWL and UWL as decision variables.
-      if (options.dv == 3){
-        
-        # next 2 lines must go together!! and in that order!!
-        mode <- "x"
-        source(paste(Rcode_path,"Calc_EmerOrCanc.R",sep=sep_), local=TRUE) #calculate emergency & cancellation deliveries
-      }
-      
-      Z_x[kkk,]  <- c(sum(obj_func()),x[kkk,])
-      
-    }
-    
-    # sort the population from best to worst
-    Z_x_sorted  <- Z_x[order(Z_x[,1]),]
-    
-    # ignore if statement. basically its just used to avoid a bug (when elite = 1)
-    if (elite == 1){
-      mus <- Z_x_sorted[1:numVar+1]
-      sigmas  <- Z_x_sorted[1:elite,1:numVar+1]
-    }else{
-      mus <- apply(Z_x_sorted[1:elite,1:numVar+1] , 2, mean)
-      sigmas  <-  apply(Z_x_sorted[1:elite,1:numVar+1] , 2, sd)
-    }
-    
-    z_quantile[t] <- Z_x_sorted[elite]
-    
-    # smoothing function
-    mus <- alpha*mus + (1-alpha)*mus_prev
-    sigmas <- alpha*sigmas + (1-alpha)*sigmas_prev
-    
-    # calculate the emergency/cancellation of deliveries for the mus. Also, calculate the objective function value.
+
     dv_SPinitial <- mus[1:psc_tot]
     dv_SPlower   <- mus[1:psc_tot + psc_tot]
     dv_SPupper   <- mus[1:psc_tot + 2*psc_tot]
@@ -256,13 +192,8 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
     
     Z_mus <- sum(obj_func())
     
-    psc_delvout   <- getDBvalues(param_ = 'COAL_DELIVERY_OUT', paramkind_ = 'RES')
-    psc_burnout   <- getDBvalues(param_ = 'COAL_BURN_OUT', paramkind_ = 'RES')
-        
     # export results of algorithm iteration (t) to .csv
-    write.row(c(t, CM_sim_settings()$SEED, Z_mus,obj_func(), z_quantile[t], mus, sigmas, 
-                unlist(delv_emer), unlist(delv_canc), unlist(dv_delv), 
-                unlist(psc_SPvol), unlist(psc_delvout), unlist(psc_burnout)))
+    write.row(c(t, CM_sim_settings()$SEED, Z_mus,obj_func(), z_quantile[t], mus, sigmas, unlist(delv_emer), unlist(delv_canc), unlist(dv_delv)))
     
     # only store each sorted population is interested in calculating the half.width. (OTHERWISE IGNORE)
     if (option.halfwidth==TRUE){
@@ -275,7 +206,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   
   ############################ END #################################
   
-#   #did the algorithm converge or were the max iterations reached?
+  #did the algorithm converge or were the max iterations reached?
 #   if (ifelse(t<epsNum, TRUE, !all(abs(z_quantile[t-seq(0,length=epsNum)] - z_quantile[t]) <= epsErr))) {
 #     print("Maximum number of iterations reached. Did not converge.")
 #   }else{
@@ -287,7 +218,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   print(toc-tic)
   
   # create a pop up dialog
-  winDialog("ok", paste("OPTIMISER completed in ",round(print(toc-tic),1),units(toc-tic), sep=""))
+  winDialog("ok", paste("Point estimator completed in ",round(print(toc-tic),1),units(toc-tic), sep=""))
     
 }
 
