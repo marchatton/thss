@@ -97,7 +97,8 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   sigma.factor <- 5 #@@@
   
   # Calc 1 sp day average
-  SP1day_ave <- apply(psc_burnout,2,mean)/30
+  days.sim_range <- sum(days_in_month(dates))
+  SP1day_ave <- as.numeric(apply(dv_delv,2,sum)/days.sim_range)
   
   ### INITIAL (DESIRED) SP
   # Constraints
@@ -114,7 +115,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   llim_lower <- SP1day_ave*1
   ulim_lower <- 0.9 # It is a factor of each randomly generated initial (desired) stockpile level.
   llim_upper <- 1.1 # It is a factor of each randomly generated initial (desired) stockpile level.
-  ulim_upper <- SP1day_ave*30
+  ulim_upper <- SP1day_ave*50
   
   # Decision variables: LWL
   mus[psc_tot + 1:psc_tot] <- (llim_lower + dv_SPinitial*ulim_lower) /2

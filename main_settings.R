@@ -7,6 +7,7 @@ library(gsubfn)
 library(stringr)
 library(RCurl)
 library(truncnorm)
+library(lubridate)
 
 ###### set variable for the character to be used as a separator in paste(...,sep=sep_). Dependant on Operating System.
 sep_ <- .Platform$file.sep #for the sake of laziness
