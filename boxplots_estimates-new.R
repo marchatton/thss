@@ -96,7 +96,7 @@ psc_tot <- 14
 
 ###################################################################### USED TO CREATE BOX PLOTS - BOX PLOTS SHOW VARIATION IN THE ESTIMATES
 
-confidential <- F
+confidential <- T
 
 ### READ FILES TO DATA.FRAMES
 
@@ -123,7 +123,7 @@ est_burnout[,1] <- NULL # clean dataframe
 est_dif <- est_delvout - est_burnout
 est_delv_dif <- est_delvin - est_delvout
 est_burn_dif <- est_burnin - est_burnout
-apply(est_dif,2,summary)
+# apply(est_dif,2,summary)
 
 ### NAMES FOR BOX PLOT
 if (confidential==FALSE){

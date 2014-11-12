@@ -1,4 +1,4 @@
-pem.csps <- function(maxIterations=100, out.stat=3){
+pem.csps <- function(maxIterations=100, out.stat=3, rand.seed=TRUE){
   
   ############################ INITIALISATION ################################
   # begin stopwatch
@@ -101,7 +101,9 @@ pem.csps <- function(maxIterations=100, out.stat=3){
   ))
   
   while (t <= maxIterations){
-    changeSimSet(seed=round(runif(1)*10000), iter=1000)
+    if (rand.seed==TRUE){
+      changeSimSet(seed=round(runif(1)*10000), iter=1000)
+    }  
     print(paste("simulation seed =", CM_sim_settings()$SEED))
     source(paste(Rcode_path,"RunCSPS.R",sep=sep_), local=TRUE)
     psc_delvout   <- getDBvalues(param_ = 'COAL_DELIVERY_OUT', paramkind_ = 'RES')

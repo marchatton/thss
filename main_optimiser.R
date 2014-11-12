@@ -1,4 +1,4 @@
-optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE, out.stat=3){
+optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE, out.stat=3){
   
   ############################ INITIALISATION ################################
   
@@ -34,7 +34,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
     print(paste("powerstation ", options.ps," (", colnames(psc_template)[options.ps], ") ",  "will be optimised", sep=""))
   }
   
-
+  
   ###### CHECK THAT ESTIMATED VALUES EXIST
   # Stop the optimiser if the estimator has not been run initially.
   # If file doesnt exist, stop the optimiser. Estimates are required for the optimiser's planned deliveries.
@@ -56,7 +56,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   psc_cv        <- getDBvalues(param_ = 'CV', paramkind_ = 'INP')
   
   #simulation settings
-  changeSimSet(seed=555, iter=1000)
+  changeSimSet(seed=10, iter=1000)
   print(paste("simulation seed =", CM_sim_settings()$SEED))
   print(paste("simulation iter =", CM_sim_settings()$ITERATIONS))
   
@@ -70,8 +70,72 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   dv_delv <- psc_template
   dv_delv[,]  <- dv_delv_base
   
+  ######## DELIVERY SCENARIOS
+  #   d_scen_num_months <- rep(NA,psc_tot)
+  #   d_scen_num_months[iiii] <- rep(sample(1:interval_num, 1))
+  
+  #   d_scen_num_months <- c(6, 5, 3, 6, 8, 4, 7, 1, 8, 3, 5, 5, 7, 4)
+  #   d_scen_which_months <- psc_template
+  #   d_scen_which_months[,] <- 0
+  #   d_scen_rand <- psc_template
+  #   d_scen_rand[,] <- 0
+  #   d_scen_delv <- psc_template
+  #   d_scen_which_months[,] <- 0
+  #     
+  #   for (iiii in 1:psc_tot){
+  #     d_scen_which_months[sample(1:interval_num, d_scen_num_months[iiii]), iiii] <- 1    
+  #   }
+  #     
+  #   d_scen_rand[,] <- data.frame(replicate(psc_tot, runif(interval_num, 0.8, 1.2)))
+  #   d_scen_delv[,] <- d_scen_rand * d_scen_which_months
+  #   d_scen_delv[d_scen_delv==0] <- 1
+  #   save(d_scen_delv, file="d_scen_delv.Rda")
+  #   dv_delv <- dv_delv* d_scen_delv
+  
+  d_scen_delv <- psc_template
+  d_scen_delv[1,] <- c(1.0000000, 1.1305066, 1.0000000, 1.1107442, 1.1491233, 1.0000000, 0.8937211, 
+                       1.000000, 1.1826445, 1.0000000, 0.9042976, 1.0590593, 1.1924352, 1.0258141)
+  d_scen_delv[2,] <- c(0.9432821, 1.0021594, 1.0000000, 0.8547828, 0.9669022, 1.0000000, 1.1410923, 
+                       0.882669, 1.1410907, 1.0000000, 1.1522853, 1.0776141, 0.8696910, 0.9641442)
+  d_scen_delv[3,] <- c(0.8184659, 0.8934392, 1.0000000, 1.0000000, 0.9617290, 1.0187876, 1.0000000, 
+                       1.000000, 1.0851240, 0.9398053, 1.0000000, 1.0000000, 0.9714676, 0.8003543)
+  d_scen_delv[4,] <- c(1.0130660, 1.0000000, 0.9777912, 1.1053455, 0.9359125, 1.0000000, 0.9274559, 
+                       1.000000, 0.9712974, 0.9575661, 1.0000000, 1.1055342, 1.0886405, 1.0000000)
+  d_scen_delv[5,] <- c(0.8984939, 1.1450149, 1.0000000, 0.9622945, 1.0296295, 0.9429449, 1.1086424, 
+                       1.000000, 1.0063406, 1.0000000, 0.8273502, 0.8857251, 1.1882916, 1.0000000)
+  d_scen_delv[6,] <- c(1.0000000, 1.0000000, 1.0726945, 0.9590161, 1.0434778, 1.0002753, 0.8024794, 
+                       1.000000, 1.0104574, 1.0000000, 1.0000000, 1.0000000, 1.0000000, 1.0000000)
+  d_scen_delv[7,] <- c(1.1689540, 0.8482176, 0.8844548, 0.8226094, 0.8470352, 1.0000000, 1.1624594, 
+                       1.000000, 1.0063418, 1.0000000, 0.8854596, 0.9177667, 1.0554908, 0.8471909)
+  d_scen_delv[8,] <- c(0.8811328, 1.0000000, 1.0000000, 1.0000000, 0.8483108, 0.9841560, 0.8032255, 
+                       1.000000, 1.0763479, 1.0556937, 0.8374403, 1.0000000, 1.1769271, 1.0000000)
+  
+  
+  if (d.scen==1){ #normal
+    dv_delv <- dv_delv 
+    
+  }else if (d.scen==2){ #80%
+    dv_delv <- dv_delv*0.9
+    
+  }else if (d.scen==3){ #120%
+    dv_delv <- dv_delv*1.1
+    
+  }else if (d.scen==4){ #random
+    dv_delv <- dv_delv * d_scen_delv #   +/- 20%
+    
+  }else if (d.scen==5){ #random
+    dv_delv <- dv_delv * ((d_scen_delv-1)/0.2*0.3+1) #   +/- 30%
+    
+  }else if (d.scen==6){ #random
+    dv_delv <- dv_delv * ((d_scen_delv-1)/0.2*0.4+1) #   +/- 40%
+    
+  }else if (d.scen==7){ #random
+    dv_delv <- dv_delv * ((d_scen_delv-1)/0.2*0.5+1) #   +/- 50%
+  }
+  
   setDBvalues(values_ = dv_delv, param_ = 'COAL_DELIVERY_IN')
   psc_delvin <- getDBvalues(param_ = 'COAL_DELIVERY_IN', paramkind_='INP')
+  
   
   ###### NUMBER OF DECISION VARIABLES
   numVar <- 3*psc_tot
@@ -128,7 +192,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   ###### LOAD OBJECTIVE FUNCTION
   source(paste(Rcode_path,"main_obj_func.R",sep=.Platform$file.sep), local=TRUE)
   
-
+  
   
   ###### INITIALISE OTHER VALUES USED IN OPTIMSER
   elite <- as.integer(rho*N)
@@ -259,7 +323,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
     
     psc_delvout   <- getDBvalues(param_ = 'COAL_DELIVERY_OUT', paramkind_ = 'RES')
     psc_burnout   <- getDBvalues(param_ = 'COAL_BURN_OUT', paramkind_ = 'RES')
-        
+    
     # export results of algorithm iteration (t) to .csv
     write.row(c(t, CM_sim_settings()$SEED, Z_mus,obj_func(), z_quantile[t], mus, sigmas, 
                 unlist(delv_emer), unlist(delv_canc), unlist(dv_delv), 
@@ -276,12 +340,12 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   
   ############################ END #################################
   
-#   #did the algorithm converge or were the max iterations reached?
-#   if (ifelse(t<epsNum, TRUE, !all(abs(z_quantile[t-seq(0,length=epsNum)] - z_quantile[t]) <= epsErr))) {
-#     print("Maximum number of iterations reached. Did not converge.")
-#   }else{
-#     print(paste("Winner winner chicken dinner. Successfully converged (to ",Z_mus, ")", sep=""))
-#   }
+  #   #did the algorithm converge or were the max iterations reached?
+  #   if (ifelse(t<epsNum, TRUE, !all(abs(z_quantile[t-seq(0,length=epsNum)] - z_quantile[t]) <= epsErr))) {
+  #     print("Maximum number of iterations reached. Did not converge.")
+  #   }else{
+  #     print(paste("Winner winner chicken dinner. Successfully converged (to ",Z_mus, ")", sep=""))
+  #   }
   
   # display the time taken to run algorithm
   toc <- Sys.time() #end stopwatch
@@ -289,7 +353,7 @@ optimser.csps <- function(sen.anal=9, maxIterations=100, N=50, options.ps=99, op
   
   # create a pop up dialog
   winDialog("ok", paste("OPTIMISER completed in ",round(print(toc-tic),1),units(toc-tic), sep=""))
-    
+  
 }
 
 

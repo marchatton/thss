@@ -125,7 +125,7 @@ dv_SPinitial <- SPday.ave*100
 
 ############################################## MAIN
 
-confidential=FALSE
+confidential=TRUE
 
 filename <- paste("pem.csv", sep="")
 
@@ -172,46 +172,143 @@ results.sp <- rbind(results.sp,
                                Month=rep(rep(dates[1]-months(1), 
                                              times=ts), times=psc_tot),
                                value=rep(SPday.ave*100, each=ts)
-                               )) 
+                               ))
 
 results.sp_wide <- dcast(results.sp, Powerstation + Iteration ~ Month)
 
-results.sp_wide1 <- results.sp_wide[,-11]
-colnames(results.sp_wide1) <- colnames(results.sp_wide)[-3]
-results.sp_wide2 <- results.sp_wide[,-3]
+### makes sp into days
+SPday.ave_long <- rep(SPday.ave, each=ts)
+results.sp_wide[, 3:11] <- results.sp_wide[, 3:11]/SPday.ave_long
 
+### diff in sp
+results.sp_wide1 <- results.sp_wide[,-c(1,2,3)]
+colnames(results.sp_wide1) <- 1:8
+
+results.sp_wide2 <- results.sp_wide[,-c(1,2,11)]
+colnames(results.sp_wide2) <- 1:8
+                    
 results.sp_dif <- cbind(results.sp_wide[,1:2] ,
-                        -(results.sp_wide[,1:interval_num +2] 
-                          - results.sp_wide[,1:interval_num +3])
+                        results.sp_wide1 - results.sp_wide2
                         )
+rm(results.sp_wide1)
+rm(results.sp_wide2)
 
+colnames(results.sp_dif) <- c(colnames(results.sp_wide)[1:2], 
+                              dates.formatted)
+
+### cum dif
+results.sp_dif_cum <- cbind(results.sp_dif[, 1:2], 
+                            results.sp_wide[,3], results.sp_dif[, -c(1,2)])
+colnames(results.sp_dif_cum) <- c(colnames(results.sp_wide)[1:2],
+                                  "2013-07",
+                                  dates.formatted)
+results.sp_dif_cum[,3] <- 0
+
+results.sp_dif_cum[, -(1:2)] <- data.frame(t(cumsum(data.frame(t(results.sp_dif_cum[, -c(1,2)])))))
+results.sp_dif_cum[,3] <- NULL
+
+### long format for plotting
 results.sp_dif_long <- melt(results.sp_dif, id.vars=c("Powerstation", "Iteration"))
+results.sp_dif_long_cum <- melt(results.sp_dif_cum, id.vars=c("Powerstation", "Iteration"))
 
-
-##des
-p.mus.des <- ggplot(data=results.sp_dif, aes(x=Iteration, y=Desired, colour=Powerstation)) + 
-  geom_line() +
-  geom_point(aes(shape=Powerstation),
-             fill = "white",    
-             size = 2)  +       
-  scale_shape_manual(values=(1:psc_tot -1)) +
-  ylab("Target (stockpile days)") +
-  scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
-    breaks=seq(0, max(results.mus$Desired), by=2)) +  
-  scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-  theme_bw()
-p.mus.des
-ggsave(file=paste(optEstPath,"\\", graphname, "mus-des.pdf",sep=""),height=6,width=9)
-
-
-
-p.results.emer <- ggplot(results.emercanc_last[, c(1,2,3)], aes(x=Month, y=Emer)) + 
-  geom_bar(colour="black", stat="identity") +
-  facet_wrap( ~ Powerstation, ncol=3) +
+######### month on month
+## des
+p.results.sp <- ggplot(data=results.sp_dif_long, aes(x=variable, y=value, group=Iteration)) + 
+  geom_path(alpha=0.25) +
   ylab("Stockpile days") +
+  xlab("Months") +
+  scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
+    breaks=seq(-6,6,by=2), minor_breaks =seq(-6,6,by=1)    ) +  
+#   scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+  facet_wrap( ~ Powerstation, ncol=3) +
   theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4))
-p.results.emer
-ggsave(file=paste(optEstPath,"\\", graphname, "final-emer", ".pdf",sep=""),height=9,width=6)
-ggsave(file=paste(compare.path,"\\", "final-emer-", graphname, ".pdf",sep=""),height=9,width=6)
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+        text = element_text(size=15))
+
+p.results.sp
+ggsave(file=paste(optEstPath,"\\", graphname, "diff-sp-days-ALL.pdf",sep=""),height=14,width=10)
+
+for (i in 1:psc_tot){
+  
+  p.result.sp_ps <- ggplot(data= results.sp_dif_long[results.sp_dif_long$Powerstation==ps.names[i], ],
+                           aes(x=variable, y=value, group=Iteration)) +
+    geom_line(alpha=0.25) +
+    ylab("Difference in stockpile level (stockpile days)") +
+    #   scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
+    #     breaks=seq(-6,6,by=1), minor_breaks =seq(-6,6,by=0.5)    ) +  
+    #   #   scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+    theme_bw() +
+    xlab("Months") +
+    ylab("Stockpile days") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=15))
+  
+  p.result.sp_ps
+  ggsave(file=paste(optEstPath,"\\", graphname, "diff-sp-days-",ps.names[i],".pdf",sep=""),height=6,width=10)
+}
+
+
+
+######### cumulative
+## des
+p.results.sp <- ggplot(data=results.sp_dif_long_cum, aes(x=variable, y=value, group=Iteration)) + 
+  geom_path(alpha=0.25) +
+  ylab("Stockpile days") +
+  xlab("Months") +
+  scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
+    breaks=seq(-40,40,by=10)    ) +  
+  #   scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+  facet_wrap( ~ Powerstation, ncol=3) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+        text = element_text(size=15))
+
+p.results.sp
+ggsave(file=paste(optEstPath,"\\", graphname, "cum-diff-sp-days-ALL.pdf",sep=""),height=14,width=10)
+
+for (i in 1:psc_tot){
+  
+  p.result.sp_ps <- ggplot(data= results.sp_dif_long_cum[results.sp_dif_long_cum$Powerstation==ps.names[i], ],
+                           aes(x=variable, y=value, group=Iteration)) +
+    geom_line(alpha=0.25) +
+    ylab("Difference in stockpile level (stockpile days)") +
+    #   scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
+    #     breaks=seq(-6,6,by=1), minor_breaks =seq(-6,6,by=0.5)    ) +  
+    #   #   scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+    theme_bw() +
+    xlab("Months") +
+    ylab("Stockpile days") +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=15))
+  
+  p.result.sp_ps
+  ggsave(file=paste(optEstPath,"\\", graphname, "cum-diff-sp-days-",ps.names[i],".pdf",sep=""),height=6,width=10)
+}
+
+
+
+
+
+
+#### box monthly variation
+d_scen_delv
+
+p.results.sp.box <- ggplot(data=results.sp_dif_long, aes(x=variable, y=value)) + 
+  geom_boxplot() +
+  ylab("Stockpile days") +
+  xlab("Months") +
+  scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
+    breaks=seq(-6,6,by=2), minor_breaks =seq(-6,6,by=1)    ) +  
+  #   scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+  facet_wrap( ~ Powerstation, ncol=3) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+        text = element_text(size=15))
+
+p.results.sp.box
+
+ggsave(file=paste(optEstPath,"\\", graphname, "box-diff-sp-days-ALL.pdf",sep=""),height=14,width=10)
 

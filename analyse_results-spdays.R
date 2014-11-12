@@ -126,25 +126,11 @@ SPday.ave <- as.numeric(apply(dv_delv,2,sum)/days.sim_range)
 
 ############################################################ MAIN
 
-Analyse.Results <- function(res.choose=1, confidential=FALSE){
-  ###### results - analyse
-  #   if (res.choose == 1){
-  #     filename <- "CEM_results1.csv"
-  #     title_ <- paste("Powerstation = 1.  Decision variable = desired SP", sep="")  
-  #     graphname <- "ps1-dv1_"
-  #   }else if (res.choose == 2){
-  #     filename <- "CEM_results2.csv"
-  #     title_ <- paste("Powerstation = 14.  Decision variable= desired SP", sep="")  
-  #     graphname <- "ps14-dv1_"
-  #   } else if (res.choose == 3){
-  #     filename <- "CEM_results3.csv"
-  #     title_ <- paste("Powerstation = 1.  Decision variables = LWL, desired SP, UWL", sep="")  
-  #     graphname <- "ps1-dv3_"
-  #   } else if (res.choose == 4){
-  #     filename <- "CEM_results4.csv"
-  #     title_ <- paste("Powerstation = 14.  Decision variables = LWL, desired SP, UWL", sep="")  
-  #     graphname <- "ps14-dv3_"
-  #   } 
+
+ps.names <- LETTERS[1:psc_tot]
+
+
+Analyse.Results <- function(res.choose=9, confidential=TRUE){
   
   sensivity.costs <- data.frame(ec=c(rep(c(1.75,0.75),4) , rep(1.25,4)),
                                 cc=c(rep(c(0.8,0.2),times=2, each=2) , rep(0.5,4)),
@@ -162,7 +148,7 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
                   ". cc=", sensivity.costs$cc[res.choose], 
                   ". hc=", sensivity.costs$hc[res.choose],
                   ".", sep="")
-  graphname <- paste(experiments[res.choose], "-")
+  graphname <- paste(experiments[res.choose], "-",sep="")
   
   parameters_ <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[1:8], header=F)[,1:2]
   options.ps2 <- as.vector(parameters_$V2)[2]
@@ -241,33 +227,37 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
   
   ##des
   p.mus.des <- ggplot(data=results.mus[, -c(3,4)], aes(x=Iteration, y=Desired, colour=Powerstation)) + 
-    geom_line() +
+    geom_line(size=0.25) +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Target (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
       breaks=seq(0, max(results.mus$Desired), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw() +
+    theme(text = element_text(size=15))
   p.mus.des
-  ggsave(file=paste(FRpath,"\\", graphname, "mus-des.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "mus-des.pdf",sep=""),height=6,width=10)
   
   ##lwl
   p.mus.lwl <- ggplot(data=results.mus[, -c(2,4)], aes(x=Iteration, y=LWL, colour=Powerstation)) + 
     geom_line() +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Lower warning limit (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$LWL)), 
       breaks=seq(0, max(results.mus$LWL), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw() +
+    theme(text = element_text(size=15))
   p.mus.lwl
-  ggsave(file=paste(FRpath,"\\", graphname, "mus-lwl.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "mus-lwl.pdf",sep=""),height=6,width=10)
   
   
   ##uwl
@@ -275,15 +265,17 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
     geom_line() +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Upper warning limit (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$UWL)), 
       breaks=seq(0, max(results.mus$UWL), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.mus.uwl
-  ggsave(file=paste(FRpath,"\\", graphname, "mus-uwl.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "mus-uwl.pdf",sep=""),height=6,width=10)
   
   
   ###sigmas
@@ -294,30 +286,34 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
     geom_line() +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Target (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$Desired)), 
                        breaks=seq(0, max(results.sigmas$Desired), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.sigmas.des
-  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-des.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-des.pdf",sep=""),height=6,width=10)
   
   ##lwl
   p.sigmas.lwl <- ggplot(data=results.sigmas[, -c(2,4)], aes(x=Iteration, y=LWL, colour=Powerstation)) + 
     geom_line() +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Lower warning limit (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$LWL)), 
                        breaks=seq(0, max(results.sigmas$LWL), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.sigmas.lwl
-  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-lwl.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-lwl.pdf",sep=""),height=6,width=10)
   
   
   ##uwl
@@ -325,15 +321,17 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
     geom_line() +
     geom_point(aes(shape=Powerstation),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:psc_tot -1)) +
-    ylab("Upper warning limit (stockpile days)") +
+    ylab("Stockpile days") +
+    xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$UWL)), 
                        breaks=seq(0, max(results.sigmas$UWL), by=2)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.sigmas.uwl
-  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-uwl.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "sigmas-uwl.pdf",sep=""),height=6,width=10)
   
   
   
@@ -352,16 +350,18 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
       geom_line() +
       geom_ribbon(alpha=0.6) +
       geom_point(fill = "white",    
-                 size = 2)  +       
+                 size = 2.5)  +       
       scale_shape_manual(values=(1:psc_tot -1)) + 
       ylab("Stockpile days") +
+      xlab("Iterations") +
       scale_y_continuous(limit=c(0,max(results.mus$UWL)), 
                          breaks=seq(0, max(results.mus$UWL), by=2)) +  
       scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-      theme_bw()
+      theme_bw()+
+      theme(text = element_text(size=15))
     
     p.mus.chosen
-    ggsave(file=paste(FRpath,"\\", graphname, "stockpile.ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=9)
+    ggsave(file=paste(FRpath,"\\", graphname, "sp-ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=10)
   }
   
   ###loop through stockpile ribbon function
@@ -375,6 +375,28 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
     }
   }
   
+  # facet ribbon
+  p.mus.ribbon.all <- ggplot(data=results.mus, aes(x=Iteration, y=Desired, ymin=LWL, ymax=UWL)) + 
+    geom_line() +
+    geom_ribbon(alpha=0.25) +
+    #     geom_point(fill = "white",    
+    #                size = 2.5)  +       
+    scale_shape_manual(values=(1:psc_tot -1)) + 
+    ylab("Stockpile days") +
+    xlab("Iterations") +
+    scale_y_continuous(limit=c(0,max(results.mus$UWL)), 
+                       breaks=seq(0, max(results.mus$UWL), by=4)) +  
+    scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+    facet_wrap( ~ Powerstation, ncol=3) +
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4), 
+          text = element_text(size=15))  
+  
+  p.mus.ribbon.all
+  ggsave(file=paste(FRpath,"\\", graphname, "sp-ribbon-all.pdf",sep=""),height=14,width=10)
+  
+  
+  #results costs
   results.costs <- melt(results.costs, id.vars="Iteration")
   colnames(results.costs) <- c("Iteration", "Cost", "value")
   
@@ -382,39 +404,45 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
     geom_line() +
     geom_point(aes(shape=Cost),
                fill = "white",    
-               size = 2)  +       
+               size = 2.5)  +       
     scale_shape_manual(values=(1:length(levels(results.costs$Cost)) -1)) +
-    ylab("Rands (x10 ^9)") +
+    ylab("Rands (x10 ^6)") +
+    xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.costs$value)), 
                        breaks=seq(0, max(results.costs$value), by=100)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.costs.all
-  ggsave(file=paste(FRpath,"\\", graphname, "costs-all.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "costs-all.pdf",sep=""),height=6,width=10)
   
   p.costs.quan <- ggplot(data=results.costs[results.costs["Cost"]=="Overall.quantile",], aes(x=Iteration, y=value)) + 
     geom_line() +
     geom_point() +
-    ylab("Rands (x10 ^9)") +
+    ylab("Rands (x10 ^6)") +
+    xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.costs$value)), 
       breaks=seq(0, max(results.costs$value), by=100)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.costs.quan
-  ggsave(file=paste(FRpath,"\\", graphname, "costs-Zquan.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "costs-Zquan.pdf",sep=""),height=6,width=10)
   
   #@@
   p.costs.mu <- ggplot(data=results.costs[results.costs["Cost"]=="Overall.mu",], aes(x=Iteration, y=value)) + 
     geom_line() +
     geom_point(size=3) +
     xlab("Iteration") +
-    ylab("Rands (x10 ^9)") +
+    ylab("Rands (x10 ^6)") +
+    xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.costs$value)), 
                        breaks=seq(0, max(results.costs$value), by=100)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-    theme_bw()
+    theme_bw()+
+    theme(text = element_text(size=15))
   p.costs.mu
-  ggsave(file=paste(FRpath,"\\", graphname, "costs-Zmu.pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "costs-Zmu.pdf",sep=""),height=6,width=10)
   
   ## plot last iteration
   iter.last <- max(results.mus$Iteration)
@@ -426,56 +454,196 @@ Analyse.Results <- function(res.choose=1, confidential=FALSE){
                      middle=Desired,
                      ymin=LWL,
                      ymax=UWL), stat="identity", width=0.6) +
-    xlab("Power station") + 
+    xlab("Power stations") + 
     ylab("Stockpile days") +
     scale_y_continuous(limit=c(0,max(results_SPdays.iter.last$UWL)), 
                        breaks=seq(0, max(results_SPdays.iter.last$UWL), by=2)) + 
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4))   
+    theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=15))   
   p.mus.chosen
-  ggsave(file=paste(FRpath,"\\", graphname, "final-results", ".pdf",sep=""),height=6,width=9)
-  ggsave(file=paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""),height=6,width=9)
+  ggsave(file=paste(FRpath,"\\", graphname, "final-results", ".pdf",sep=""),height=6,width=10)
+  ggsave(file=paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""),height=6,width=10)
   
   
   p.results.emer <- ggplot(results.emercanc_last[, c(1,2,3)], aes(x=Month, y=Emer)) + 
     geom_bar(colour="black", stat="identity") +
-    facet_wrap( ~ Powerstation, ncol=3) +
+    facet_wrap( ~ Powerstation, ncol=5) +
     ylab("Stockpile days") +
+    xlab("Months") +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4))
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=15))
   p.results.emer
-  ggsave(file=paste(FRpath,"\\", graphname, "final-emer", ".pdf",sep=""),height=9,width=6)
-  ggsave(file=paste(compare.path,"\\", "final-emer-", graphname, ".pdf",sep=""),height=9,width=6)
+  ggsave(file=paste(FRpath,"\\", graphname, "final-emer", ".pdf",sep=""),height=6,width=10)
+  ggsave(file=paste(compare.path,"\\", "final-emer-", graphname, ".pdf",sep=""),height=14,width=10)
   
   p.results.canc <- ggplot(results.emercanc_last[, c(1,2,4)], aes(x=Month, y=Canc)) + 
     geom_bar(colour="black", stat="identity") +
-    facet_wrap( ~ Powerstation, ncol=3) +
+    facet_wrap( ~ Powerstation, ncol=5) +
     ylab("Stockpile days") +
+    xlab("Months") +
     theme_bw() +
-    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4))
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=15))
   p.results.canc
-  ggsave(file=paste(FRpath,"\\", graphname, "final-canc", ".pdf",sep=""),height=9,width=6)
-  ggsave(file=paste(compare.path,"\\", "final-canc-", graphname, ".pdf",sep=""),height=9,width=6)
+  ggsave(file=paste(FRpath,"\\", graphname, "final-canc", ".pdf",sep=""),height=6,width=10)
+  ggsave(file=paste(compare.path,"\\", "final-canc-", graphname, ".pdf",sep=""),height=14,width=10)
   
 }
 
-Analyse.Results(1)
-Analyse.Results(2)
-Analyse.Results(3)
-Analyse.Results(4)
-Analyse.Results(5)
-Analyse.Results(6)
-Analyse.Results(7)
-Analyse.Results(8)
 Analyse.Results(9)
-Analyse.Results(10)
-# Analyse.Results(11)
-# Analyse.Results(12)
-
-
-
-
+# 
 # Analyse.Results(1)
 # Analyse.Results(2)
 # Analyse.Results(3)
 # Analyse.Results(4)
+# Analyse.Results(5)
+# Analyse.Results(6)
+# Analyse.Results(7)
+# Analyse.Results(8)
+# Analyse.Results(9)
+# Analyse.Results(10)
+
+
+# Analyse.Results(11)
+# Analyse.Results(12)
+
+
+######################################## SENSITIVITY
+
+##### experiments
+
+experiments <- c(paste("s",1:8,sep=""),
+                 "b1","b2",
+                 "5p","95p")
+
+sensitivity.results <- data.frame(t=rep(NA,8),
+                                  Cost=rep(NA,8))
+
+for (i in 1:8){
+  filename <- paste(experiments[i], ".csv", sep="")
+  FRpath <- paste(optPath, "final-results", experiments[i], sep=sep_)
+  
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  
+  results.costs <- cbind(results[, 1], results[, 2:7]/1000000)
+  colnames(results.costs) <- c("Iteration", "Overall.mu", "Holding", 
+                               "Shortage", "Emergency", "Cancellation", "Overall.quantile")
+  
+  sensitivity.results[i, ] <- tail(results.costs,1)[1:2]
+}
+
+### If not all at iteration i =100
+min.iter <- min(sensitivity.results$t)
+
+for (i in 1:8){
+  filename <- paste(experiments[i], ".csv", sep="")
+  FRpath <- paste(optPath, "final-results", experiments[i], sep=sep_)
+  
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  
+  results.costs <- cbind(results[, 1], results[, 2:7]/1000000)
+  colnames(results.costs) <- c("Iteration", "Overall.mu", "Holding", 
+                               "Shortage", "Emergency", "Cancellation", "Overall.quantile")
+  
+  sensitivity.results[i, ] <- results.costs[min.iter, 1:2]
+}
+
+effect <- rep(0,3)
+
+for (i in 1:3){
+  effect[i] <- sum((-1)^  ceiling((1:8 / (2^ (i-1))))    *
+                     sensitivity.results$Cost) /8
+}
+effect
+
+
+###### facet - SA
+results.final.mus <- data.frame(matrix(rep(NA, 42*8), nrow=8, ncol=42))
+
+for (i in 1:8){
+  filename <- paste(experiments[i], ".csv", sep="")
+  FRpath <- paste(optPath, "final-results", experiments[i], sep=sep_)
+  
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  
+  results.final.mus[i,] <- tail(results[, 1:(psc_tot*3) + 7],1) 
+}
+
+SPday.ave_medium <- rep(rep(SPday.ave, times=3), each=8)
+results.final.mus <- results.final.mus/SPday.ave_medium
+results.final.mus <- melt(results.final.mus)
+
+results.final.mus["Powerstation"] <- rep(rep(ps.names, each=8) , times=3)
+results.final.mus["DV"] <- rep(c("Target","LWL","UWL"), each=(14*8))
+results.final.mus["SA"] <- rep(c("i","ii","iii","iv","v","vi","vii","viii"), times=(14*3))
+# results.final.mus$variable <- NULL
+
+
+results.final.mus.cor <- results.final.mus
+
+for (i in 1:(nrow(results.final.mus.cor)/8)){
+  j <- (i-1)*8 +1
+  k <- i*8
+  results.final.mus.cor$value[j:k] <- (results.final.mus.cor$value[j:k])/
+    max(results.final.mus.cor$value[j:k])
+}
+
+
+
+p.results.final.mus.cor <- ggplot(results.final.mus.cor, aes(x=SA, y=value, fill=SA)) + 
+  geom_bar(stat="identity") +
+  facet_grid(Powerstation ~ DV) +
+  ylab("Stockpile days") +
+  xlab("SA") +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+        text = element_text(size=15))
+p.results.final.mus.cor
+ggsave(file=paste(compare.path,"\\", "final-sa.pdf",sep=""),height=14,width=10)
+
+
+##### HEATMAP - LWL Target UWL
+
+p.results.final.mus.cor.lwl <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="LWL",], 
+                                      aes(x=SA, y=Powerstation)) + 
+  geom_tile(aes(fill=value)) +
+#   ylab("Stockpile days") +
+#   xlab("SA") +
+  theme_bw() +
+  theme(text = element_text(size=15))
+p.results.final.mus.cor.lwl
+ggsave(file=paste(compare.path,"\\", "final-sa-cor-lwl.pdf",sep=""),height=14,width=10)
+
+p.results.final.mus.cor.tar <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="Target",], 
+                                      aes(x=SA, y=Powerstation)) + 
+  geom_tile(aes(fill=value)) +
+#   ylab("Stockpile days") +
+#   xlab("SA") +
+  theme_bw() +
+  theme(text = element_text(size=15))
+p.results.final.mus.cor.tar
+ggsave(file=paste(compare.path,"\\", "final-sa-cor-tar.pdf",sep=""),height=12,width=10)
+
+
+p.results.final.mus.cor.uwl <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="UWL",], 
+                                      aes(x=SA, y=Powerstation)) + 
+  geom_tile(aes(fill=value)) +
+#   ylab("Stockpile days") +
+#   xlab("SA") +
+  theme_bw() +
+  theme(text = element_text(size=15))
+p.results.final.mus.cor.uwl
+ggsave(file=paste(compare.path,"\\", "final-sa-cor-uwl.pdf",sep=""),height=12,width=10)
+
+
