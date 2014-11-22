@@ -114,11 +114,17 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
   if (d.scen==1){ #normal
     dv_delv <- dv_delv 
     
-  }else if (d.scen==2){ #80%
+  }else if (d.scen==2){ #85%
     dv_delv <- dv_delv*0.85
     
-  }else if (d.scen==3){ #120%
+  }else if (d.scen==3){ #115%
     dv_delv <- dv_delv*1.15
+    
+  }else if (d.scen==22){ #80%
+    dv_delv <- dv_delv*0.8
+    
+  }else if (d.scen==33){ #120%
+    dv_delv <- dv_delv*1.2
     
   }else if (d.scen==4){ #random
     dv_delv <- dv_delv * d_scen_delv #   +/- 20%
