@@ -12,7 +12,7 @@ obj.coalcost <- psc_cv/psc_heatrate * psc_cost *1000 # convert from R/MWh to R/k
 
 # penalties/costs
 hc <- ( (1+sensivity.costs$hc[sen.anal])^(1/12) - 1) *12
-pen_shor <- psc_cv / psc_heatrate * 75 * 1000 * 1000 #convert from R75/kWh to R/ton
+pen_shor <- psc_cv / psc_heatrate * 75 * 1000 * 1000 *1000 #convert from R75/kWh to R/ton
 pen_canc <- sensivity.costs$cc[sen.anal] 
 
 pen_emer <- function(){

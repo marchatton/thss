@@ -74,7 +74,7 @@ library(zoo)
 library(extrafont)
 
 # extrafont settings
-loadfonts()
+loadfonts(quiet=TRUE)
 Sys.setenv(R_GSCMD = "C:\\Program Files\\gs\\gs9.15\\bin\\gswin64c.exe") # Adjust the path to match your installation of Ghostscript
 
 #colour blind palette
@@ -138,16 +138,19 @@ SPday.ave <- as.numeric(apply(dv_delv,2,sum)/days.sim_range)
 ps.names <- LETTERS[1:psc_tot]
 
 
+
+sensivity.costs <- data.frame(ec=c(rep(c(1.75,0.75),4) , rep(1.25,4)),
+                              cc=c(rep(c(0.8,0.2),times=2, each=2) , rep(0.5,4)),
+                              hc=c(rep(c(0.0875,0.0775), each=4) , rep(0.0825,4))
+) 
+
+experiments <- c(paste("s",1:8,sep=""),
+                 "b1", "b2",
+                 "5p", "95p",
+                 "d2", "d3", "d4", "d5")
+
 Analyse.Results <- function(res.choose=9, confidential=TRUE){
   
-  sensivity.costs <- data.frame(ec=c(rep(c(1.75,0.75),4) , rep(1.25,4)),
-                                cc=c(rep(c(0.8,0.2),times=2, each=2) , rep(0.5,4)),
-                                hc=c(rep(c(0.0875,0.0775), each=4) , rep(0.0825,4))
-  ) 
-  
-  experiments <- c(paste("s",1:8,sep=""),
-                   "b1","b2",
-                   "5p","95p")
   filename <- paste(experiments[res.choose], ".csv", sep="")
   
   FRpath <- paste(optPath, "final-results", experiments[res.choose], sep=sep_)
@@ -193,7 +196,7 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
   
   
   results.mus <- data.frame(Iteration=rep(results[,1],psc_tot))
-  results.mus["Desired"] <- melt(results[, c(1:14 +7)], id.vars=)[,2]
+  results.mus["Desired"] <- melt(results[, c(1:14 +7)])[,2]
   results.mus["LWL"] <- melt(results[, c(1:14 +7+14)])[,2]
   results.mus["UWL"] <- melt(results[, c(1:14 +7+14+14)])[,2]
   results.mus["Powerstation"] <- rep(ps.names, each=ts)
@@ -239,8 +242,10 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +    
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +    
     ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$Desired)), 
@@ -258,8 +263,11 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +    ylab("Stockpile days") +
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +  
+    ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$LWL)), 
       breaks=seq(0, max(results.mus$LWL), by=1)) +  
@@ -276,8 +284,11 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +    ylab("Stockpile days") +
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +  
+    ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.mus$UWL)), 
       breaks=seq(0, max(results.mus$UWL), by=1)) +  
@@ -298,8 +309,10 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +   
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +  
     ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$Desired)), 
@@ -317,8 +330,10 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +    
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +  
     ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$LWL)), 
@@ -336,8 +351,11 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_point(aes(shape=Powerstation),
                fill = "white",    
                size = 2.5)  +       
-    scale_shape_manual(values=rep(c(1,4),7)) + #rep((1:(psc_tot/2) -1),2)) +
-    scale_colour_manual(values=rep(cbPalette[-5],2)) +    ylab("Stockpile days") +
+    scale_shape_manual(values=rep(c(1,4),7),
+                       name="Power\nstation") + #rep((1:(psc_tot/2) -1),2)) +
+    scale_colour_manual(values=rep(cbPalette[-5],2),
+                        name="Power\nstation") +  
+    ylab("Stockpile days") +
     xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.sigmas$UWL)), 
                        breaks=seq(0, max(results.sigmas$UWL), by=2)) +  
@@ -349,45 +367,45 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
   embed_fonts(paste(FRpath,"\\", graphname, "sigmas-uwl.pdf",sep=""))
   
   
-#   ###plot stockpile ribbon function
-#   Stockpile.Ribbon <- function(ps_chosen=1){
-#     # #create custom palette
-#     #myColors <- colorRampPalette(brewer.pal(9,"Set1"))(psc_tot)
-#     #names(myColors) <- levels(ps.names)
-#     #colScale <- scale_colour_manual(name = "Powerstation",values = myColors)
-#     
-#     ps_chosen.name <- ps.names[ps_chosen]
-#     results.mus.chosen <- results.mus[results.mus[,5]==ps_chosen.name, ]
-#     head(results.mus)
-#     
-#     p.mus.chosen <- ggplot(data=results.mus.chosen, aes(x=Iteration, y=Desired, ymin=LWL, ymax=UWL)) + 
-#       geom_ribbon(alpha=0.6) +
-#       geom_line() +
-#       geom_point(fill = "white",    
-#                  size = 2.5)  +       
-#       ylab("Stockpile days") +
-#       xlab("Iterations") +
-#       scale_y_continuous(limit=c(0,max(results.mus$UWL)), 
-#                          breaks=seq(0, max(results.mus$UWL), by=2)) +  
-#       scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
-#       theme_bw()+
-#       theme(text = element_text(size=20, family="CM Roman"))
-#     
-#     p.mus.chosen
-#     ggsave(file=paste(FRpath,"\\", graphname, "sp-ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=10)
-#     embed_fonts(paste(FRpath,"\\", graphname, "sp-ribbon-", ps_chosen.name, ".pdf",sep=""))
-#   }
-#   
-#   ###loop through stockpile ribbon function
-#   if ((options.ps2>0) && (options.ps2<=psc_tot)){
-#     Stockpile.Ribbon(options.ps2)
-#   }else if(options.ps2=="all"){
-#     draw.count <- 0
-#     while (draw.count<psc_tot){
-#       draw.count <- draw.count+1
-#       Stockpile.Ribbon(draw.count)
-#     }
-#   }
+  #   ###plot stockpile ribbon function
+  #   Stockpile.Ribbon <- function(ps_chosen=1){
+  #     # #create custom palette
+  #     #myColors <- colorRampPalette(brewer.pal(9,"Set1"))(psc_tot)
+  #     #names(myColors) <- levels(ps.names)
+  #     #colScale <- scale_colour_manual(name = "Powerstation",values = myColors)
+  #     
+  #     ps_chosen.name <- ps.names[ps_chosen]
+  #     results.mus.chosen <- results.mus[results.mus[,5]==ps_chosen.name, ]
+  #     head(results.mus)
+  #     
+  #     p.mus.chosen <- ggplot(data=results.mus.chosen, aes(x=Iteration, y=Desired, ymin=LWL, ymax=UWL)) + 
+  #       geom_ribbon(alpha=0.6) +
+  #       geom_line() +
+  #       geom_point(fill = "white",    
+  #                  size = 2.5)  +       
+  #       ylab("Stockpile days") +
+  #       xlab("Iterations") +
+  #       scale_y_continuous(limit=c(0,max(results.mus$UWL)), 
+  #                          breaks=seq(0, max(results.mus$UWL), by=2)) +  
+  #       scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
+  #       theme_bw()+
+  #       theme(text = element_text(size=20, family="CM Roman"))
+  #     
+  #     p.mus.chosen
+  #     ggsave(file=paste(FRpath,"\\", graphname, "sp-ribbon-", ps_chosen.name, ".pdf",sep=""),height=6,width=10)
+  #     embed_fonts(paste(FRpath,"\\", graphname, "sp-ribbon-", ps_chosen.name, ".pdf",sep=""))
+  #   }
+  #   
+  #   ###loop through stockpile ribbon function
+  #   if ((options.ps2>0) && (options.ps2<=psc_tot)){
+  #     Stockpile.Ribbon(options.ps2)
+  #   }else if(options.ps2=="all"){
+  #     draw.count <- 0
+  #     while (draw.count<psc_tot){
+  #       draw.count <- draw.count+1
+  #       Stockpile.Ribbon(draw.count)
+  #     }
+  #   }
   
   # facet ribbon
   p.mus.ribbon.all <- ggplot(data=results.mus, aes(x=Iteration, y=Desired, ymin=LWL, ymax=UWL)) + 
@@ -410,6 +428,12 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
   embed_fonts(paste(FRpath,"\\", graphname, "sp-ribbon-all.pdf",sep=""))
   
   #results costs
+  if (res.choose==11){
+    scale_convenience <- 1000
+  }else{
+    scale_convenience <- 1
+  }
+    
   results.costs <- melt(results.costs, id.vars="Iteration")
   colnames(results.costs) <- c("Iteration", "Cost", "value")
   
@@ -422,7 +446,7 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     ylab("Rands (millions)") +
     xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.costs$value)), 
-                       breaks=seq(0, max(results.costs$value), by=200)) +  
+                       breaks=seq(0, max(results.costs$value), by=200*scale_convenience)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
     theme_bw()+
     theme(text = element_text(size=20, family="CM Roman"))
@@ -434,10 +458,10 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
     geom_line() +
     geom_point() +
     ylab("Rands (millions)") +
-#     ylab(expression(paste("Rands (", 10^{6}, ")",))) +
+    #     ylab(expression(paste("Rands (", 10^{6}, ")",))) +
     xlab("Iterations") +
     scale_y_continuous(#limit=c(0,max(results.costs$value)), 
-      breaks=seq(0, max(results.costs$value), by=200)) +  
+      breaks=seq(0, max(results.costs$value), by=200*scale_convenience)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
     theme_bw()+
     theme(text = element_text(size=20, family="CM Roman"))
@@ -448,12 +472,12 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
   #@@
   p.costs.mu <- ggplot(data=results.costs[results.costs["Cost"]=="Overall.mu",], aes(x=Iteration, y=value)) + 
     geom_line() +
-#     geom_point(size=3) +
+    #     geom_point(size=3) +
     xlab("Iteration") +
     ylab("Rands (millions)") +
     xlab("Iterations") +
     scale_y_continuous(limit=c(0,max(results.costs$value)), 
-                       breaks=seq(0, max(results.costs$value), by=200)) +  
+                       breaks=seq(0, max(results.costs$value), by=200*scale_convenience)) +  
     scale_x_continuous(breaks=seq(0, 100, length.out=11)) +
     theme_bw()+
     theme(text = element_text(size=20, family="CM Roman"))
@@ -477,7 +501,7 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
                        breaks=seq(0, max(results_SPdays.iter.last$UWL), by=2)) + 
     theme_bw() +
     theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
-          text = element_text(size=20, family="CM Roman"))   
+      text = element_text(size=20, family="CM Roman"))   
   p.mus.chosen
   ggsave(file=paste(FRpath,"\\", graphname, "final-results", ".pdf",sep=""),height=6,width=10)
   embed_fonts(paste(FRpath,"\\", graphname, "final-results", ".pdf",sep=""))
@@ -515,23 +539,27 @@ Analyse.Results <- function(res.choose=9, confidential=TRUE){
   
 }
 
-Analyse.Results(9)
-#  
-# Analyse.Results(1)
-# Analyse.Results(2)
-# Analyse.Results(3)
-# Analyse.Results(4)
-# Analyse.Results(5)
-# Analyse.Results(6)
-# Analyse.Results(7)
-# Analyse.Results(8)
 # Analyse.Results(9)
+
+Analyse.Results(1)
+Analyse.Results(2)
+Analyse.Results(3)
+Analyse.Results(4)
+Analyse.Results(5)
+Analyse.Results(6)
+Analyse.Results(7)
+Analyse.Results(8)
+Analyse.Results(9)
+
+Analyse.Results(11)
+Analyse.Results(12)
+Analyse.Results(13)
+Analyse.Results(14)
+Analyse.Results(15)
+Analyse.Results(16)
+
+
 # Analyse.Results(10)
-
-
-# Analyse.Results(11)
-# Analyse.Results(12)
-
 
 ######################################## SENSITIVITY
 
@@ -539,7 +567,8 @@ Analyse.Results(9)
 
 experiments <- c(paste("s",1:8,sep=""),
                  "b1","b2",
-                 "5p","95p")
+                 "5p","95p",
+                 "d2", "d3", "d4", "d5")
 
 sensitivity.results <- data.frame(t=rep(NA,8),
                                   Cost=rep(NA,8))
@@ -621,12 +650,15 @@ p.results.final.mus <- ggplot(results.final.mus, aes(x=SA, y=value, fill=SA)) +
   geom_bar(stat="identity") +
   facet_grid(Powerstation ~ DV) +
   ylab("Stockpile days") +
-  xlab("") +
-  theme_bw() +
-  scale_fill_manual(values=cbPalette) +
+  xlab("Sensitivity analysis") +
+  theme_bw()+
+  scale_fill_manual(values=cbPalette, guide=FALSE) +
   theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
         text = element_text(size=20, family="CM Roman"),
-        panel.margin=unit(0.7, "lines"))
+        panel.margin=unit(0.7, "lines"),
+        axis.ticks = element_blank(), 
+        axis.text.x = element_blank()) 
+
 p.results.final.mus
 
 #         panel.margin = unit(height_+aux_, "lines")) 
@@ -650,10 +682,10 @@ for (i in 1:(nrow(results.final.mus.cor)/8)){
 p.results.final.mus.cor.lwl <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="LWL",], 
                                       aes(x=SA, y=Powerstation)) + 
   geom_tile(aes(fill=value)) +
-#   guide_colourbar(reverse=TRUE) +
-#   scale_fill_gradient(guide=guide_colourbar(reverse = TRUE)) +
-#   ylab("Stockpile days") +
-#   xlab("SA") +
+  #   guide_colourbar(reverse=TRUE) +
+  #   scale_fill_gradient(guide=guide_colourbar(reverse = TRUE)) +
+  #   ylab("Stockpile days") +
+  #   xlab("SA") +
   theme_bw() +
   theme(text = element_text(size=20, family="CM Roman")) +
   scale_fill_continuous(high="#132B43", low="#56B1F7")
@@ -664,9 +696,9 @@ embed_fonts(paste(compare.path,"\\", "final-sa-cor-lwl.pdf",sep=""))
 p.results.final.mus.cor.tar <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="Target",], 
                                       aes(x=SA, y=Powerstation)) + 
   geom_tile(aes(fill=value)) +
-#   guide_colourbar(reverse=TRUE) +
-#   ylab("Stockpile days") +
-#   xlab("SA") +
+  #   guide_colourbar(reverse=TRUE) +
+  #   ylab("Stockpile days") +
+  #   xlab("SA") +
   theme_bw() +
   theme(text = element_text(size=20, family="CM Roman")) +
   scale_fill_continuous(high="#132B43", low="#56B1F7")
@@ -678,14 +710,263 @@ embed_fonts(paste(compare.path,"\\", "final-sa-cor-tar.pdf",sep=""))
 p.results.final.mus.cor.uwl <- ggplot(results.final.mus.cor[results.final.mus.cor$DV=="UWL",], 
                                       aes(x=SA, y=Powerstation)) + 
   geom_tile(aes(fill=value)) +
-#   guide_colourbar(reverse=TRUE) +
-#   ylab("Stockpile days") +
-#   xlab("SA") +
+  #   guide_colourbar(reverse=TRUE) +
+  #   ylab("Stockpile days") +
+  #   xlab("SA") +
   theme_bw() +
   scale_fill_continuous(high="#132B43", low="#56B1F7") +
   theme(text = element_text(size=20, family="CM Roman"))
 p.results.final.mus.cor.uwl
 ggsave(file=paste(compare.path,"\\", "final-sa-cor-uwl.pdf",sep=""),height=12,width=10)
 embed_fonts(paste(compare.path,"\\", "final-sa-cor-uwl.pdf",sep=""))
+
+
+####### compare deliveries
+
+results.d.final.mus <- data.frame(matrix(rep(NA, 42*5), nrow=5, ncol=42))
+jj <- 0
+for (i in c(9,13:16)){
+  jj <- jj+1
+  filename <- paste(experiments[i], ".csv", sep="")
+  FRpath <- paste(optPath, "final-results", experiments[i], sep=sep_)
+  
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  
+  results.d.final.mus[jj,] <- tail(results[, 1:(psc_tot*3) + 7],1) 
+}
+
+SPday.ave_medium <- rep(rep(SPday.ave, times=3), each=5)
+results.d.final.mus <- results.d.final.mus/SPday.ave_medium
+results.d.final.mus <- melt(results.d.final.mus)
+
+results.d.final.mus["Powerstation"] <- rep(rep(ps.names, each=5) , times=3)
+results.d.final.mus["DV"] <- rep(c("Target","LWL","UWL"), each=(14*5))
+results.d.final.mus["Del"] <- rep(experiments[c(9,13:16)], times=(14*3))
+results.d.final.mus <- dcast(results.d.final.mus, Powerstation +Del ~ DV, value.var="value")
+
+
+p.results.d.final.mus2 <- ggplot(results.d.final.mus[results.d.final.mus$Del!="d4",], aes(x=Powerstation, fill=Del)) + 
+  geom_boxplot(aes(lower=LWL, 
+                   upper=UWL, 
+                   middle=Target,
+                   ymin=LWL,
+                   ymax=UWL), stat="identity", width=0.6, position=position_dodge(width=0.8)) +
+  xlab("Power stations") + 
+  ylab("Stockpile days") +
+  scale_y_continuous(limit=c(0,max(results.d.final.mus$UWL)), 
+                     breaks=seq(0, max(results.d.final.mus$UWL), by=2)) + 
+  theme_bw() +
+  theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+    text = element_text(size=20, family="CM Roman"))   +
+  scale_fill_manual(values=cbPalette[c(1,3,4,8)], 
+                    name="Delivery\nscenario" ,
+                    breaks=c("b1","d2","d3","d5"),
+                    labels=c("Base case", "0.9", "1.1", "U(0.7,1.3)"))
+p.results.d.final.mus2
+
+graphname <- "del-exp2"
+ggsave(file=paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""),height=10,width=16)
+embed_fonts(paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""))
+
+
+p.results.d.final.mus <- ggplot(results.d.final.mus, aes(x=Powerstation, fill=Del)) + 
+  geom_boxplot(aes(lower=LWL, 
+                   upper=UWL, 
+                   middle=Target,
+                   ymin=LWL,
+                   ymax=UWL), stat="identity", width=0.6, position=position_dodge(width=0.8)) +
+  xlab("Power stations") + 
+  ylab("Stockpile days") +
+  scale_y_continuous(limit=c(0,max(results.d.final.mus$UWL)), 
+                     breaks=seq(0, max(results.d.final.mus$UWL), by=2)) + 
+  theme_bw() +
+  theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+    text = element_text(size=20, family="CM Roman"))   +
+  scale_fill_manual(values=cbPalette[c(1:4,8)], 
+                    name="Delivery\nscenario" ,
+                    breaks=c("b1","d2","d3","d4","d5"),
+                    labels=c("Base case", "0.9", "1.1", "U(0.8,1.2)", "U(0.7,1.3)"))
+p.results.d.final.mus
+
+graphname <- "del-exp"
+ggsave(file=paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""),height=10,width=16)
+embed_fonts(paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""))
+
+####### compare output statistics
+
+results.os.final.mus <- data.frame(matrix(rep(NA, 42*3), nrow=3, ncol=42))
+jj <- 0
+for (i in c(9,11:12)){
+  jj <- jj+1
+  filename <- paste(experiments[i], ".csv", sep="")
+  FRpath <- paste(optPath, "final-results", experiments[i], sep=sep_)
+  
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, sep=sep_))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  
+  results.os.final.mus[jj,] <- tail(results[, 1:(psc_tot*3) + 7],1) 
+}
+
+SPday.ave_medium <- rep(rep(SPday.ave, times=3), each=3)
+results.os.final.mus <- results.os.final.mus/SPday.ave_medium
+results.os.final.mus <- melt(results.os.final.mus)
+
+results.os.final.mus["Powerstation"] <- rep(rep(ps.names, each=3) , times=3)
+results.os.final.mus["DV"] <- rep(c("Target","LWL","UWL"), each=(14*3))
+results.os.final.mus["OS"] <- rep(experiments[c(9,11:12)], times=(14*3))
+results.os.final.mus <- dcast(results.os.final.mus, Powerstation +OS ~ DV, value.var="value")
+
+
+p.results.os.final.mus <- ggplot(results.os.final.mus, aes(x=Powerstation, fill=factor(OS), order=OS)) + 
+  geom_boxplot(aes(lower=LWL, 
+                   upper=UWL, 
+                   middle=Target,
+                   ymin=LWL,
+                   ymax=UWL), stat="identity", width=0.6, position=position_dodge(width=0.8)) +
+  xlab("Power stations") + 
+  ylab("Stockpile days") +
+  scale_y_continuous(limit=c(0,max(results.os.final.mus$UWL)), 
+                     breaks=seq(0, max(results.os.final.mus$UWL), by=2)) + 
+  theme_bw() +
+  theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+    text = element_text(size=20, family="CM Roman"))   +
+  scale_fill_manual(values=c(cbPalette[6],cbPalette[7],cbPalette[1]), 
+                    name="Output statistic\nscenario" ,
+                    breaks=c("b1","5p","95p"),
+                    labels=c("Base case","5-th percentile","95-th percentile"))
+p.results.os.final.mus
+
+graphname <- "os-exp"
+ggsave(file=paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""),height=10,width=16)
+embed_fonts(paste(compare.path,"\\", "final-results-", graphname, ".pdf",sep=""))
+
+
+
+
+###### SP as it changes over time
+filename <- experiments[15]
+graphname <- experiments[15]
+
+FRpath <- paste(optPath, "final-results", experiments[15], sep=sep_)
+
+results <- read.csv(text=readLines(paste(FRpath, "/", filename, ".csv",sep=""))[-(1:9)])
+results <- results[-1,] #remove first row (all the initialised values)
+row.names(results) <- results[,1]
+results <- results[,-2] # remove first 2 columns
+
+# dec.var <- ifelse(options.dv2==1, "DES", 
+#                   ifelse(options.dv2==3, "LWL, DES & UWL", NA))
+ts <- results[nrow(results), 1]
+confidential=TRUE
+
+if (confidential==FALSE){
+  ps.names <- c("Arnot", "Camden", "Duvha", "Grootvlei", "Hendrina", "Kendal", "Komati", 
+                "Kriel_OC", "Kriel_UG", "Majuba", "Matimba", "Matla", "Tutuka", "Lethabo")
+}else if (confidential==TRUE){
+  ps.names <- LETTERS[1:psc_tot]
+}
+
+SPday.ave_long <- rep(SPday.ave, each=ts)
+SPday.ave_medium <- rep(SPday.ave, each=interval_num)
+
+
+results.sp <- data.frame(Iteration=results[,1])
+for (i in 1:14){
+  results.sp[ps.names[i]] <- rowSums(results[ ,c(7+42+42 + 14*8+ 14*8+ ((i-1)*8 + 1):(i*8)) ])
+}
+
+results.sp_last <- data.frame(Powerstation = rep(ps.names, each=8),
+                              Month = rep(dates.formatted, 14),
+                              SP = as.numeric(results[nrow(results) ,c(7+42+42 + 14*8 + 14*8 + 1:(14*8)) ])   /SPday.ave_medium,
+                              Target = rep(as.numeric(results[nrow(results), 
+                                                           c(1:14 +7)]), each=8)/SPday.ave_medium,
+                              LWL = rep(as.numeric(results[nrow(results), 
+                                                           c(1:14 +7 +14)]), each=8)/SPday.ave_medium,
+                              UWL = rep(as.numeric(results[nrow(results), 
+                                                              c(1:14 +7+14+14)]), each=8)/SPday.ave_medium)
+
+legend.manual <- c("Target"=cbPalette[7],"Actual"=cbPalette[3],"Region\nbetween\nwarning\nlimits"="black")
+
+
+p.d.ribbon.all <- ggplot(data=results.sp_last, aes(x=Month, y=SP)) +
+  scale_colour_manual(name="Stockpile\nlevel",values=legend.manual) + 
+  scale_fill_manual(name="",values=legend.manual) +
+  geom_ribbon(aes(group=1, ymin=LWL, ymax=UWL, fill="Region\nbetween\nwarning\nlimits"),alpha=0.2) +
+  geom_line(aes(group=1,y=Target, colour="Target")) +
+  geom_line(aes(group=1, colour="Actual")) +
+  ylab("Stockpile days") +
+  xlab("Months") +
+  facet_wrap( ~ Powerstation, ncol=3) +
+  theme_bw() +
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4), 
+        text = element_text(size=20, family="CM Roman")) 
+
+p.d.ribbon.all
+
+ggsave(file=paste(FRpath,"\\", graphname, "-sp-final-ribbon-all.pdf",sep=""),height=14,width=10)
+embed_fonts(paste(FRpath,"\\", graphname, "-sp-final-ribbon-all.pdf",sep=""))
+
+
+results.sp_last2 <- melt(results.sp_last, id.vars=c("Powerstation", "Month"))
+# results.sp_last2[results.sp_last2$variable=="UWL",3] <- rep("WL",448)
+# results.sp_last2[results.sp_last2$variable=="LWL",3] <- "WL"
+
+
+p.d.ribbon.all <- ggplot(data=results.sp_last2, aes(x=Month,group=variable,y=value,colour=variable)) +
+  geom_line()+
+  ylab("Stockpile days") +
+  xlab("Months") +
+  facet_wrap( ~ Powerstation, ncol=3) +
+  theme_bw() +
+  scale_colour_manual(name="",
+                      values=c(cbPalette[7],cbPalette[3],"black","black"),
+                      breaks=c("SP","UWL","Target","LWL"),
+                      labels=c("Actual","U_p","T_p","L_p")) + 
+  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4), 
+        text = element_text(size=20, family="CM Roman")) 
+
+p.d.ribbon.all
+
+ggsave(file=paste(FRpath,"\\", graphname, "-sp-final-ribbon-all.pdf",sep=""),height=14,width=10)
+embed_fonts(paste(FRpath,"\\", graphname, "-sp-final-ribbon-all.pdf",sep=""))
+
+
+
+
+results.table.chosen <- c("b1","s1","s2","s3","s4","s5","s6","s7","s8","5p","95p","d2","d3","d5")
+result.table.cost <- rep(NA, length(results.table.chosen))
+
+result.table.tar <- data.frame(matrix(rep(NA,length(results.table.chosen)*14), 
+                                      nrow=length(results.table.chosen),
+                                      ncol=14))
+result.table.lwl <- data.frame(matrix(rep(NA,length(results.table.chosen)*14), 
+                                      nrow=length(results.table.chosen),
+                                      ncol=14))
+
+result.table.uwl <- data.frame(matrix(rep(NA,length(results.table.chosen)*14), 
+                                      nrow=length(results.table.chosen),
+                                      ncol=14))
+
+
+for (i in 1:length(results.table.chosen)){
+  j <- which(experiments==results.table.chosen[i])
+  filename <- experiments[j]
+  FRpath <- paste(optPath, "final-results", experiments[j], sep=sep_)
+  results <- read.csv(text=readLines(paste(FRpath, "/", filename, ".csv",sep=""))[-(1:9)])
+  results <- results[-1,] #remove first row (all the initialised values)
+  row.names(results) <- results[,1]
+  results <- results[,-2] # remove first 2 columns
+  result.table.cost[i] <- round(results[nrow(results), 2]/1000000 ,1)
+  result.table.tar[i, ] <- round(results[nrow(results), 7 + 1:14] ,1)
+  result.table.lwl[i, ] <- round(results[nrow(results), 7 + 1:14 +14 ] ,1)
+  result.table.uwl[i, ] <- round(results[nrow(results), 7 + 1:14 +14 +14] ,1)
+}
+
+
 
 

@@ -3,6 +3,15 @@ getwd()
 
 library(ggplot2)
 library(RColorBrewer)
+library(extrafont)
+
+# extrafont settings
+loadfonts(quiet=TRUE)
+Sys.setenv(R_GSCMD = "C:\\Program Files\\gs\\gs9.15\\bin\\gswin64c.exe") # Adjust the path to match your installation of Ghostscript
+
+#colour blind palette
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 
 ps.names <- LETTERS[1:14]
 
@@ -45,7 +54,9 @@ ggplot(data=possible2, aes(x=Powerstation, y=StockpileDays, fill=Key)) +
   xlab("Coal-fired power station") +
   scale_x_discrete(limits=ps.names) +
   scale_y_continuous(breaks=seq(0, 50, 5), limits=c(0,50)) +
-  scale_fill_discrete(name="Policy", breaks=c("Pre 2008", "Post 2008", "Possible solution")) +
-  theme_bw() 
+  theme_bw() +
+  scale_fill_manual(values=cbPalette[c(8,3,4)],
+                    name="Policy", breaks=c("Pre 2008", "Post 2008", "Possible solution")) +
+  theme(text = element_text(size=20, family="CM Roman"))
 ggsave(file="possible-solution2.pdf",height=6,width=10) 
-
+embed_fonts("possible-solution2.pdf")

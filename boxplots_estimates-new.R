@@ -63,6 +63,15 @@ library(lubridate)
 library(ggplot2)
 library(reshape2)
 library(zoo)
+library(extrafont)
+
+# extrafont settings
+loadfonts(quiet=TRUE)
+Sys.setenv(R_GSCMD = "C:\\Program Files\\gs\\gs9.15\\bin\\gswin64c.exe") # Adjust the path to match your installation of Ghostscript
+
+#colour blind palette
+cbPalette <- c("#999999", "#E69F00", "#56B4E9", "#009E73", "#F0E442", "#0072B2", "#D55E00", "#CC79A7")
+
 
 ###### set variable for the character to be used as a separator in paste(...,sep=sep_). Dependant on Operating System.
 sep_ <- .Platform$file.sep #for the sake of laziness
@@ -125,6 +134,8 @@ est_delv_dif <- est_delvin - est_delvout
 est_burn_dif <- est_burnin - est_burnout
 # apply(est_dif,2,summary)
 
+
+
 ### NAMES FOR BOX PLOT
 if (confidential==FALSE){
   ps_names <- c("Arnot", "Camden", "Duvha", "Grootvlei", "Hendrina", "Kendal", "Komati", 
@@ -139,72 +150,128 @@ bp_dates2 <- substr(month(dates, label = T),1,4)
 
 
 
-
-
-
 variation.anal <- function(type="both"){ #a=all, d=delv, b=burn
-cnames <- c("Burn (stockpile days)", "Deliveries (stockpile days)", "Deliveries - burn (stockpile days)")
+  cnames <- c("Burn (stockpile days)", "Deliveries (stockpile days)", "Deliveries - burn (stockpile days)")
+  
+  ylab <- "Stockpile days"
+  
+  if (type=="burn"){
+    m1 <- est_burnin
+    m2 <- est_burnout
+    by_ <- 2
+    by2_ <- 100
+    ylab2 <- "Burn (ktons)"
+    #   ylab <- cnames[1]
+  }else if(type=="delv"){
+    m1 <- est_delvin
+    m2 <- est_delvout
+    by_ <- 1
+    ylab2 <- "Deliveries (ktons)"
+    by2_ <- 100
+    #   ylab <- cnames[2]
+  }else if(type=="both"){
+    m1 <- est_delvout
+    m2 <- est_burnout
+    by_ <- 2
+    ylab2 <- "Deliveries - burn (ktons)"
+    by2_ <- 50
+    #   ylab <- cnames[3]
+  }
+  
+  n.estimates <- nrow(m1)
+  
+  ###### Use estimator's ave burnout to set delvin (baseline deliveries). Only set in the beginning, doesnt change thereafter. 
+  est_ave_burnout <- read.csv(paste(paste(optEstPath, est_names[4], sep=sep_) ,".csv",sep=""), 
+                              header = TRUE, sep = ",", quote = "\"", dec = ".", 
+                              fill = TRUE, comment.char = "")
+  est_ave_burnout[,1] <- NULL # clean dataframe
+  est_ave_burnout <- apply(est_ave_burnout,2,mean)
+  dv_delv_base <- est_ave_burnout
+  dv_delv <- data.frame(matrix(rep(NA, 14*8), ncol=14, nrow=8))
+  dv_delv[,]  <- dv_delv_base
+  
+  days.sim_range <- sum(days_in_month(dates))
+  SPday.ave <- as.numeric(apply(dv_delv,2,sum)/days.sim_range)
+  
+  
+  SPday.df <- m1
+  SPday.df[,] <- rep(SPday.ave, each=n.estimates)
+  
+  if (type=="both"){
+    variation_value <- melt(m1-m2)$value 
+  }else {
+    variation_value <- melt(m2)$value
+  }
+  
+  
+  variation.df <- data.frame(Powerstation = rep( rep(ps_names, each=length(bp_dates)) 
+                                                 , each=n.estimates),
+                             Month = rep( rep(bp_dates, psc_tot),
+                                          , each=n.estimates),
+                             value = variation_value)
+ 
+  variation.df_spdays <- data.frame(Powerstation = rep( rep(ps_names, each=length(bp_dates)) 
+                                                        , each=n.estimates),
+                                    Month = rep( rep(bp_dates, psc_tot),
+                                                 , each=n.estimates),
+                                    value = melt(m1-m2)$value / 
+                                      rep( rep(SPday.ave, each=length(bp_dates)) , each=n.estimates))
+  
+  if (type=="both"){
+    seq_ <- c(rev(-seq(0, round(-min(variation.df$value), -1), by=by2_)[-1]),
+            seq(0, round(max(variation.df$value), -1), by=by2_)) 
+  }else{
+    seq_ <- seq(0,
+                round(max(variation.df$value), -1),
+                by=by2_)
+  }
+    
+    
+  p1a <- ggplot(variation.df_spdays, aes(x=Powerstation, y=value, fill=Month)) +
+    geom_boxplot(outlier.size = 0.75, size=0.1, width=0.7, position=position_dodge(0.8)) +
+    scale_fill_manual(values=cbPalette) +
+    theme_bw() +
+    ylab(ylab) +
+    xlab("Power station") +
+    theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+      text = element_text(size=20, family="CM Roman")) +
+      #panel.grid.minor = element_line(colour="#e9e9e9",size=0.1)) +
+    scale_y_continuous(breaks=seq(-32,32,by=by_))
+                       #minor_breaks=seq(-32,32,by=(by_/2)))
+  
+  p1a
+  ggsave(file=paste(optEstPath, "/", "one-", type, ".pdf", sep=""),height=10,width=15)
+  embed_fonts(paste(optEstPath, "/", "one-", type, ".pdf", sep=""))
 
-if (type=="burn"){
-  m1 <- est_burnin
-  m2 <- est_burnout
-  ylab <- cnames[1]
-}else if(type=="delv"){
-  m1 <- est_delvin
-  m2 <- est_delvout
-  ylab <- cnames[2]
-}else if(type=="both"){
-  m1 <- est_delvout
-  m2 <- est_burnout
-  ylab <- cnames[3]
-}
-
-n.estimates <- nrow(m1)
-
-###### Use estimator's ave burnout to set delvin (baseline deliveries). Only set in the beginning, doesnt change thereafter. 
-est_ave_burnout <- read.csv(paste(paste(optEstPath, est_names[4], sep=sep_) ,".csv",sep=""), 
-                            header = TRUE, sep = ",", quote = "\"", dec = ".", 
-                            fill = TRUE, comment.char = "")
-est_ave_burnout[,1] <- NULL # clean dataframe
-est_ave_burnout <- apply(est_ave_burnout,2,mean)
-dv_delv_base <- est_ave_burnout
-dv_delv <- data.frame(matrix(rep(NA, 14*8), ncol=14, nrow=8))
-dv_delv[,]  <- dv_delv_base
-
-days.sim_range <- sum(days_in_month(dates))
-SPday.ave <- as.numeric(apply(dv_delv,2,sum)/days.sim_range)
-
-
-SPday.df <- m1
-SPday.df[,] <- rep(SPday.ave, each=n.estimates)
-
-variation.df <- data.frame(Powerstation = rep( rep(ps_names, each=length(bp_dates)) 
-                                              , each=n.estimates),
-                                 Month = rep( rep(bp_dates, psc_tot),
-                                              , each=n.estimates),
-                           value = melt(m1-m2)$value / rep( rep(SPday.ave, each=length(bp_dates)) , each=n.estimates)
-)
-
-
-p1 <- ggplot(variation.df, aes(x=Powerstation, y=value, colour=Month)) +
-  geom_boxplot() +
-  theme_bw() +
-  ylab(ylab) +
-  xlab("Power station") +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4))
-
-p1
-ggsave(file=paste(optEstPath, "/", "one-", type, ".pdf", sep=""),height=6,width=9)
-
-p2 <- ggplot(variation.df, aes(x=Month, y=value)) +
-  geom_boxplot() +
-  facet_wrap( ~ Powerstation, ncol=3) + #, scales = "free_x"
-  theme_bw() +
-  theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4)) +
-  ylab(ylab)
-p2
-ggsave(file=paste(optEstPath, "/", "facet-", type, ".pdf", sep=""),height=9,width=6)
-
+  
+  p1b <- ggplot(variation.df[variation.df$Powerstation==LETTERS[11:14],], aes(x=Powerstation, y=value, fill=Month)) +
+    geom_boxplot(outlier.size = 1.5, size=0.3, width=0.7, position=position_dodge(0.8)) +
+    scale_fill_manual(values=cbPalette) +
+    theme_bw() +
+    ylab(ylab2) +
+    xlab("Power station") +
+    theme(#axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+      text = element_text(size=20, family="CM Roman")) +
+      #panel.grid.minor = element_line(colour="#e9e9e9",size=0.1)) +
+    scale_y_continuous(breaks=seq_#,minor_breaks=seq(-32,32,by=(by_/2))) 
+                       )
+  
+  p1b
+  ggsave(file=paste(optEstPath, "/", "one-four-", type, ".pdf", sep=""),height=6,width=10)
+  embed_fonts(paste(optEstPath, "/", "one-four-", type, ".pdf", sep=""))
+  
+  
+  p2 <- ggplot(variation.df_spdays, aes(x=Month, y=value)) +
+    geom_boxplot(outlier.size=1.5) +
+    facet_wrap( ~ Powerstation, ncol=3) + #, scales = "free_x"
+    theme_bw() +
+    theme(axis.text.x = element_text(angle = 90, hjust = 1, vjust=0.4),
+          text = element_text(size=20, family="CM Roman")) +
+    ylab(ylab)
+  p2
+  ggsave(file=paste(optEstPath, "/", "facet-", type, ".pdf", sep=""),height=14,width=10)
+  embed_fonts(paste(optEstPath, "/", "facet-", type, ".pdf", sep=""))
+  
 }
 
 variation.anal("both")

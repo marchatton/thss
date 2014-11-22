@@ -115,10 +115,10 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
     dv_delv <- dv_delv 
     
   }else if (d.scen==2){ #80%
-    dv_delv <- dv_delv*0.9
+    dv_delv <- dv_delv*0.85
     
   }else if (d.scen==3){ #120%
-    dv_delv <- dv_delv*1.1
+    dv_delv <- dv_delv*1.15
     
   }else if (d.scen==4){ #random
     dv_delv <- dv_delv * d_scen_delv #   +/- 20%
@@ -167,7 +167,7 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
   ### INITIAL (DESIRED) SP
   # Constraints
   llim_init <- SP1day_ave*5
-  ulim_init <- SP1day_ave*40
+  ulim_init <- SP1day_ave*25
   
   # Initial decision variables
   dv_SPinitial <- SP1day_ave*20 
@@ -179,7 +179,7 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
   llim_lower <- SP1day_ave*1
   ulim_lower <- 0.9 # It is a factor of each randomly generated initial (desired) stockpile level.
   llim_upper <- 1.1 # It is a factor of each randomly generated initial (desired) stockpile level.
-  ulim_upper <- SP1day_ave*50
+  ulim_upper <- SP1day_ave*40
   
   # Decision variables: LWL
   mus[psc_tot + 1:psc_tot] <- (llim_lower + dv_SPinitial*ulim_lower) /2
