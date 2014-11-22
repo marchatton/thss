@@ -6,7 +6,7 @@ cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
 ###### CHOOSE A FILEPATH - DIFFERENT FOR DIFFERENT COMPUTERS
-fp_set <- 1
+fp_set <- .
 
 ###### FILE PATHS USED IN OPTIMISER
 ## !!Adjust these paths to the folder where EFS is running!!

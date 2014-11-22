@@ -277,7 +277,7 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
   ######LOAD SHEDDING
   if (load_shedding==TRUE){
     load_shedding.filenames <- paste("/",
-                                     c("d22", "d5", "p5", "d5", "d33", "d4", "95p", "d4","d7","d6"),
+                                     c("d22", "d5", "55", "d5", "d33", "d4", "95p", "d4","d7","d6"),
                                      sep="")
     writepath <- paste(optPath, load_shedding.filenames[ls.id], sep="")
     load_shedding.results <- read.csv(text=readLines(paste(writepath, ".csv", sep=""))[-(1:9)])
