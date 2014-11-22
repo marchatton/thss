@@ -6,7 +6,7 @@ cat("\014") #clear console
 rm(list = ls()) #clear global environment
 
 ###### CHOOSE A FILEPATH - DIFFERENT FOR DIFFERENT COMPUTERS
-fp_set <- .
+fp_set <- 1
 
 ###### FILE PATHS USED IN OPTIMISER
 ## !!Adjust these paths to the folder where EFS is running!!
@@ -62,7 +62,7 @@ source(paste(Rcode_path,"point_estimator.R", sep=.Platform$file.sep), local=TRUE
 source(paste(Rcode_path,"main_pem.R", sep=.Platform$file.sep), local=TRUE)
 
 #************* RUN OPTIMISER ******************
-optimser.csps(d.scen=., load_shedding=TRUE, ls.id=.)
+optimser.csps(out.stat=., d.scen=., load_shedding=., ls.id=.)
 # optimser.csps(maxIterations=20, N=30)
 # pem.csps(maxIterations=10, rand.seed=FALSE)
 # optimser.csps(fp_set=1, maxIterations=2, N=2, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE)
