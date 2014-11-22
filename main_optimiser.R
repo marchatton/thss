@@ -1,4 +1,17 @@
-optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE, out.stat=3){
+# d.scen=1
+# sen.anal=9
+# maxIterations=100
+# N=50
+# options.ps=99
+# options.dv=3
+# options.eval=1
+# option.halfwidth=FALSE
+# out.stat=3
+# load_shedding=FALSE
+# ls.id=1
+
+
+optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options.ps=99, options.dv=3, options.eval=1, option.halfwidth=FALSE, out.stat=3, load_shedding=FALSE, ls.id=NA){
   
   ############################ INITIALISATION ################################
   
@@ -260,6 +273,26 @@ optimser.csps <- function(d.scen=1, sen.anal=9, maxIterations=100, N=50, options
   
   # while (ifelse(t<epsNum, TRUE, !all(abs(z_quantile[t-seq(0,length=epsNum)] - z_quantile[t]) <= epsErr)) && (t < maxIterations))
   # {   # @@@
+  
+  ######LOAD SHEDDING
+  if (load_shedding==TRUE){
+    load_shedding.filenames <- c("/d2", 
+                                 "/d5-2", 
+                                 "/d4-2", 
+                                 "/d3", 
+                                 "/95p", 
+                                 "/5p", 
+                                 "/d4", 
+                                 "/d5", 
+                                 "/d22", 
+                                 "/d33")
+    writepath <- paste(optPath, load_shedding.filenames[ls.id], sep="")
+    load_shedding.results <- read.csv(text=readLines(paste(writepath, ".csv", sep=""))[-(1:9)])
+    mus <- as.numeric(load_shedding.results[nrow(load_shedding.results), 1:42 + 8])
+    sigmas <- as.numeric(load_shedding.results[nrow(load_shedding.results), 1:42 + 8 +42])
+    t <- as.numeric(load_shedding.results[nrow(load_shedding.results),1]) +1
+  }
+  
   
   while (t <= maxIterations){
     # for the smoothing function
